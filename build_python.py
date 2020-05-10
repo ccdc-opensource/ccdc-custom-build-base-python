@@ -21,6 +21,12 @@ def linux():
 def centos():
     return linux() and Path('/etc/centos-release').exists()
 
+def debian():
+    return linux() and Path('/etc/debian_version').exists()
+
+def ubuntu():
+    return debian() and subprocess.check_output('lsb_release -i -s', shell=True).decode('utf-8').strip() == 'Ubuntu'
+
 def platform():
     if linux():
         if centos():
@@ -77,14 +83,17 @@ def install_prerequisites():
         if centos():
             subprocess.run('sudo yum update -y', shell=True, check=True)
             subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel xz xz-devel libffi-devel', shell=True, check=True)
+        if ubuntu():
+            subprocess.run('sudo apt-get -y update', shell=True, check=True)
+            subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
+            subprocess.run('sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev', shell=True, check=True)
 
 def install_pyenv():
     if macos():
         subprocess.run(['brew', 'install', 'pyenv'], check=True)
     if linux():
-        if centos():
-            subprocess.run(['rm -rf /tmp/pyenvinst'], shell=True, check=True)
-            subprocess.run(['git clone https://github.com/pyenv/pyenv.git /tmp/pyenvinst'], shell=True, check=True)
+        subprocess.run(['rm -rf /tmp/pyenvinst'], shell=True, check=True)
+        subprocess.run(['git clone https://github.com/pyenv/pyenv.git /tmp/pyenvinst'], shell=True, check=True)
 
 def install_pyenv_version(version):
     python_build_env = dict(os.environ)
@@ -95,8 +104,7 @@ def install_pyenv_version(version):
         python_build_env['PKG_CONFIG_PATH']="/usr/local/opt/tcl-tk/lib/pkgconfig"
         python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
     if linux():
-        if centos():
-            python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
+        python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
         
     subprocess.run(f'sudo python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
         
