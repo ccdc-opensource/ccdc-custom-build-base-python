@@ -15,7 +15,7 @@ def linux():
     return sys.platform.startswith('linux')
 
 def centos():
-    return linux() and 
+    return linux()
 
 def install_from_msi():
     pass
