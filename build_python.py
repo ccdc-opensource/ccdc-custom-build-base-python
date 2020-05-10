@@ -52,6 +52,11 @@ def python_destdir():
 def python_version_destdir():
     return python_destdir() / output_base_name()
 
+def prepare_output_dir():
+    if linux():
+        subprocess.run(f'sudo mkdir -p {python_destdir()}', shell=True)
+        subprocess.run(f'sudo chown $USER {python_destdir()}', shell=True)
+
 def install_from_msi():
     pass
 
@@ -113,6 +118,7 @@ def create_archive():
         subprocess.run(command, check=True, cwd=python_destdir())
 
 def main():
+    prepare_output_dir()
     if sys.platform == 'win32':
         install_from_msi()
     else:

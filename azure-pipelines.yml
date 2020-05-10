@@ -17,9 +17,9 @@ jobs:
       ArtifactName: 'python'
       publishLocation: 'Container'
 
-- job: Ubuntu
+- job: Ubuntu18.04
   pool:
-    vmImage: 'ubuntu-latest'
+    vmImage: 'ubuntu-18.04'
   steps:
   # No need to setup specific python, the container's python3 will be used
   - task: PythonScript@0
