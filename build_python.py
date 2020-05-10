@@ -58,7 +58,17 @@ def prepare_output_dir():
         subprocess.run(f'sudo chown $USER {python_destdir()}', shell=True)
 
 def install_from_msi():
-    pass
+    import urllib.request
+    import tempfile
+    url=f'https://www.python.org/ftp/python/{python_version}/python-{python_version}-amd64.exe'
+    localfilename=f'python-{python_version}-amd64.exe'
+    with tempfile.TemporaryDirectory() as tmpdir:
+        localfile = Path(tmpdir) / localfilename
+        print(f'Fetching {url} to {localfile}')
+        with urllib.request.urlopen(url) as response:
+            with open(localfile, 'wb') as final_file:
+                shutil.copyfileobj(response, final_file)
+        subprocess.run(f'{localfile} /quiet InstallAllUsers=0 Include_launcher=0 Include_doc=0 Include_debug=1 Include_symbols=1 Shortcuts=0 Include_test=0 CompileAll=1 TargetDir="{python_version_destdir()}" SimpleInstallDescription="Just for me, no test suite."', shell=True, check=True)
 
 def install_prerequisites():
     if macos():

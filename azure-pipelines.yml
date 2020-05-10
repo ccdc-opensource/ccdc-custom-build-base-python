@@ -51,22 +51,22 @@ jobs:
       ArtifactName: 'python'
       publishLocation: 'Container'
 
-# - job: WindowsVS2019
-#   pool:
-#     vmImage: 'windows-2019'
-#   variables:
-#     build_vs_version: '2019'  
-#   steps:
-#   - task: UsePythonVersion@0
-#     inputs:
-#       versionSpec: '3.8'
-#   - task: PythonScript@0
-#     inputs:
-#       scriptSource: 'filePath'
-#       scriptPath: build_python.py
-#     displayName: 'install python'
-#   - task: PublishBuildArtifacts@1
-#     inputs:
-#       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-#       ArtifactName: 'python'
-#       publishLocation: 'Container'
+- job: WindowsVS2019
+  pool:
+    vmImage: 'windows-2019'
+  variables:
+    build_vs_version: '2019'  
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.8'
+  - task: PythonScript@0
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: build_python.py
+    displayName: 'install python'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'python'
+      publishLocation: 'Container'
