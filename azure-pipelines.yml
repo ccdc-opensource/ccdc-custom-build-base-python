@@ -1,21 +1,37 @@
 jobs:
-# - job: Linux
-#   pool:
-#     vmImage: 'ubuntu-latest'
-#   # We use a container to run the build as we must be compatible with centos7's older glibc
-#   container: rockdreamer/centos7-gcc9:latest
-#   steps:
-#   # No need to setup specific python, the container's python3 will be used
-#   - task: PythonScript@0
-#     inputs:
-#       scriptSource: 'filePath'
-#       scriptPath: build_python.py
-#     displayName: 'install python'
-#   - task: PublishBuildArtifacts@1
-#     inputs:
-#       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-#       ArtifactName: 'python'
-#       publishLocation: 'Container'
+- job: Centos7
+  pool:
+    vmImage: 'ubuntu-latest'
+  # We use a container to run the build as we must be compatible with centos7's older glibc
+  container: rockdreamer/centos7-gcc9:latest
+  steps:
+  # No need to setup specific python, the container's python3 will be used
+  - task: PythonScript@0
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: build_python.py
+    displayName: 'install python'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'python'
+      publishLocation: 'Container'
+
+- job: Ubuntu
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  # No need to setup specific python, the container's python3 will be used
+  - task: PythonScript@0
+    inputs:
+      scriptSource: 'filePath'
+      scriptPath: build_python.py
+    displayName: 'install python'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'python'
+      publishLocation: 'Container'
 
 - job: macOS
   pool:

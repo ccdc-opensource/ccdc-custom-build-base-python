@@ -19,7 +19,17 @@ def linux():
     return sys.platform.startswith('linux')
 
 def centos():
-    return linux()
+    return linux() and Path('/etc/centos-release').exists()
+
+def platform():
+    if linux():
+        if centos():
+            version = subprocess.check_output('rpm -E %{rhel}', shell=True).decode('utf-8').strip()
+            return f'centos{version}'
+        else:
+            version = subprocess.check_output('lsb_release -r -s', shell=True).decode('utf-8').strip()
+            return f'ubuntu{version}'
+    return sys.platform
 
 def output_base_name():
     components = [
@@ -30,7 +40,7 @@ def output_base_name():
         components.append(os.environ['BUILD_BUILDID'])
     else:
         components.append('dont-use-me-dev-build')
-    components.append(sys.platform)
+    components.append(platform())
     return '-'.join(components)
 
 def python_destdir():
@@ -48,10 +58,18 @@ def install_from_msi():
 def install_prerequisites():
     if macos():
         subprocess.run(['brew', 'install', 'openssl', 'readline', 'sqlite3', 'xz', 'zlib', 'tcl-tk'], check=True)
+    if linux():
+        if centos():
+            subprocess.run('sudo yum update -y', shell=True, check=True)
+            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel xz xz-devel libffi-devel', shell=True, check=True)
 
 def install_pyenv():
     if macos():
         subprocess.run(['brew', 'install', 'pyenv'], check=True)
+    if linux():
+        if centos():
+            subprocess.run(['rm -rf /tmp/pyenvinst'], shell=True, check=True)
+            subprocess.run(['git clone https://github.com/pyenv/pyenv.git /tmp/pyenvinst'], shell=True, check=True)
 
 def install_pyenv_version(version):
     python_build_env = dict(os.environ)
@@ -61,7 +79,11 @@ def install_pyenv_version(version):
         python_build_env['CPPFLAGS']=f"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
         python_build_env['PKG_CONFIG_PATH']="/usr/local/opt/tcl-tk/lib/pkgconfig"
         python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
-        subprocess.run(['python-build', version, str(python_version_destdir())], check=True, env=python_build_env)
+    if linux():
+        if centos():
+            python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
+        
+    subprocess.run(['python-build', version, str(python_version_destdir())], check=True, env=python_build_env)
         
 def output_archive_filename():
         return f'{output_base_name()}.tar.gz'
