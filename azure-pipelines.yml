@@ -17,7 +17,7 @@ jobs:
       ArtifactName: 'python'
       publishLocation: 'Container'
 
-- job: Ubuntu18.04
+- job: Ubuntu1804
   pool:
     vmImage: 'ubuntu-18.04'
   steps:
