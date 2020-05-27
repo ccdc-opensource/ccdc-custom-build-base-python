@@ -7,7 +7,7 @@ from pathlib import Path
 
 package_name = 'python'
 python_version = '3.7.7'
-macos_deployment_target = '10.12'
+macos_deployment_target = '10.15'
 
 def macos():
     return sys.platform == 'darwin'
@@ -42,8 +42,8 @@ def output_base_name():
         package_name,
         python_version,
     ]
-    if 'BUILD_BUILDID' in os.environ:
-        components.append(os.environ['BUILD_BUILDID'])
+    if 'BUILD_BUILDNUMBER' in os.environ:
+        components.append(os.environ['BUILD_BUILDNUMBER'])
     else:
         components.append('dont-use-me-dev-build')
     components.append(platform())
