@@ -4,8 +4,8 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
-    arguments: 3.6.10
-  displayName: 'install python 3.6.10'
+    arguments: 3.6.8 #later versions don't have installers for some reason
+  displayName: 'install python 3.6.8'
 
 - task: PythonScript@0
   inputs:
