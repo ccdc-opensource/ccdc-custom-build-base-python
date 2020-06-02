@@ -18,7 +18,7 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
-    arguments: 3.8.3
+    arguments: 3.8.2 # pyenv doesn't carry 3.8.3 yet
   displayName: 'install python 3.8.3'
 
 # Upload artifactory build info
