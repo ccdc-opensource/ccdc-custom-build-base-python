@@ -4,7 +4,22 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
-  displayName: 'install python'
+    arguments: 3.6.10
+  displayName: 'install python 3.6.10'
+
+- task: PythonScript@0
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: build_python.py
+    arguments: 3.7.7
+  displayName: 'install python 3.7.7'
+
+- task: PythonScript@0
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: build_python.py
+    arguments: 3.8.3
+  displayName: 'install python 3.8.3'
 
 # Upload artifactory build info
 - task: ArtifactoryCollectIssues@1
