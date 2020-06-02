@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 package_name = 'base_python'
-python_version = sys.args[0]
+python_version = sys.argv[1]
 macos_deployment_target = '10.15'
 
 def macos():
