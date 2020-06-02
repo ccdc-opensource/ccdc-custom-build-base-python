@@ -5,7 +5,7 @@ import sys
 import os
 from pathlib import Path
 
-package_name = 'python'
+package_name = 'base_python'
 python_version = '3.7.7'
 macos_deployment_target = '10.15'
 
@@ -51,9 +51,9 @@ def output_base_name():
 
 def python_destdir():
     if windows():
-        return Path('D:\\x_mirror\\buildman\\tools\\Python')
+        return Path('D:\\x_mirror\\buildman\\tools\\base_python')
     else:
-        return Path('/opt/ccdc/third-party/python')
+        return Path('/opt/ccdc/third-party/base_python')
 
 def python_version_destdir():
     return python_destdir() / output_base_name()
