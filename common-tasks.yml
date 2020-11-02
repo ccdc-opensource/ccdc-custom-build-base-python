@@ -21,7 +21,7 @@ steps:
     arguments: 3.9.0 # added in pyenv v1.2.21
   displayName: 'install python 3.9.0'
 
-  - task: PythonScript@0
+- task: PythonScript@0
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
