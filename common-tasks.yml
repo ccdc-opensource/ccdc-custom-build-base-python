@@ -18,15 +18,15 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
-    arguments: 3.9.0 # added in pyenv v1.2.21
-  displayName: 'install python 3.9.0'
+    arguments: 3.8.7 # added in pyenv v1.2.22
+  displayName: 'install python 3.8.6'
 
 - task: PythonScript@0
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
-    arguments: 3.8.6 # added in pyenv v1.2.21
-  displayName: 'install python 3.8.6'
+    arguments: 3.9.1 # added in pyenv v1.2.22
+  displayName: 'install python 3.9.0'
 
 # Upload artifactory build info
 - task: ArtifactoryCollectIssues@1

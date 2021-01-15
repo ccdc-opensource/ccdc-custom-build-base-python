@@ -78,6 +78,7 @@ def install_from_msi():
 
 def install_prerequisites():
     if macos():
+        subprocess.run(['brew', 'update'], check=True)
         subprocess.run(['brew', 'install', 'openssl', 'readline', 'sqlite3', 'xz', 'zlib', 'tcl-tk'], check=True)
     if linux():
         if centos():
@@ -100,6 +101,7 @@ def install_pyenv_version(version):
     if macos():
         python_build_env['PATH']=f"/usr/local/opt/tcl-tk/bin:{python_build_env['PATH']}"
         python_build_env['LDFLAGS']=f"-L/usr/local/opt/tcl-tk/lib -mmacosx-version-min={macos_deployment_target}"
+        python_build_env['CFLAGS']=f"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
         python_build_env['CPPFLAGS']=f"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
         python_build_env['PKG_CONFIG_PATH']="/usr/local/opt/tcl-tk/lib/pkgconfig"
         python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
