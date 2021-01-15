@@ -18,15 +18,17 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
-    arguments: 3.8.7 # added in pyenv v1.2.22
-  displayName: 'install python 3.8.6'
+    arguments: 3.9.1 # added in pyenv v1.2.22
+  displayName: 'install python 3.9.1'
 
+# Building 3.8 last on purpose because the installer on windows clobbers the system's hosted python
+# Just keep it last or wonder why the system is loading python2 afterwards...
 - task: PythonScript@0
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
-    arguments: 3.9.1 # added in pyenv v1.2.22
-  displayName: 'install python 3.9.0'
+    arguments: 3.8.7 # added in pyenv v1.2.22
+  displayName: 'install python 3.8.6'
 
 # Upload artifactory build info
 - task: ArtifactoryCollectIssues@1
