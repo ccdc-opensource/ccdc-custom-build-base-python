@@ -58,6 +58,12 @@ def python_destdir():
 def python_version_destdir():
     return python_destdir() / output_base_name()
 
+def python_interpreter():
+    if windows():
+        return python_version_destdir() / 'python.exe'
+    else
+        return python_version_destdir() / 'bin' / 'python'
+
 def prepare_output_dir():
     if linux():
         subprocess.run(f'sudo mkdir -p {python_destdir()}', shell=True)
@@ -114,6 +120,9 @@ def install_pyenv_version(version):
 def output_archive_filename():
         return f'{output_base_name()}.tar.gz'
 
+def smoke_test():
+    subprocess.check_call([f'{ python_interpreter() }', 'smoke_test.py'])
+
 def create_archive():
     if 'BUILD_ARTIFACTSTAGINGDIRECTORY' in os.environ:
         archive_output_directory = Path(
@@ -146,6 +155,7 @@ def main():
         install_prerequisites()
         install_pyenv()
         install_pyenv_version(python_version)
+    smoke_test()
     create_archive()
 
 if __name__ == "__main__":
