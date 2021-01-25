@@ -10,6 +10,7 @@ import sqlite3
 # a TclError is raised. But if we have that, we're good to go.
 try:
     import tkinter
-    print('ok')
 except _tkinter.TclError:
     print("no display, but that's ok")
+
+print('python interpreter smoke test ok')
