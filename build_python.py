@@ -61,7 +61,7 @@ def python_version_destdir():
 def python_interpreter():
     if windows():
         return python_version_destdir() / 'python.exe'
-    else
+    else:
         return python_version_destdir() / 'bin' / 'python'
 
 def prepare_output_dir():
