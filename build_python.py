@@ -105,17 +105,21 @@ def install_pyenv():
 def install_pyenv_version(version):
     python_build_env = dict(os.environ)
     if macos():
+        python_build_env['MACOSX_DEPLOYMENT_TARGET']=f'{macos_deployment_target}'
         python_build_env['PATH']=f"/usr/local/opt/tcl-tk/bin:{python_build_env['PATH']}"
         python_build_env['LDFLAGS']=f"-L/usr/local/opt/tcl-tk/lib -mmacosx-version-min={macos_deployment_target}"
         python_build_env['CFLAGS']=f"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
         python_build_env['CPPFLAGS']=f"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
         python_build_env['PKG_CONFIG_PATH']="/usr/local/opt/tcl-tk/lib/pkgconfig"
-        python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
+        python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6' --enable-shared"
+
+        subprocess.run(f'sudo "--preserve-env=MACOSX_DEPLOYMENT_TARGET,PATH,LDFLAGS,CFLAGS,CPPFLAGS,PKG_CONFIG_PATH,PYTHON_CONFIGURE_OPTS" python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+
     if linux():
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
         python_build_env['PYTHON_CONFIGURE_OPTS']="--enable-shared"
         
-    subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+        subprocess.run(f'sudo "--preserve-env=PATH,PYTHON_CONFIGURE_OPTS" python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
         
 def output_archive_filename():
         return f'{output_base_name()}.tar.gz'
