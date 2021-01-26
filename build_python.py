@@ -119,7 +119,7 @@ def install_pyenv_version(version):
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
         python_build_env['PYTHON_CONFIGURE_OPTS']="--enable-shared"
         
-        subprocess.run(f'sudo "--preserve-env=PATH,PYTHON_CONFIGURE_OPTS" python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+        subprocess.run(f'sudo "--preserve-env=PATH,PYTHON_CONFIGURE_OPTS" /tmp/pyenvinst/plugins/python-build/bin/python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
         
 def output_archive_filename():
         return f'{output_base_name()}.tar.gz'
