@@ -11,14 +11,14 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
-    arguments: 3.7.9
-  displayName: 'install python 3.7.9'
+    arguments: 3.7.10
+  displayName: 'install python 3.7.10'
 
 - task: PythonScript@0
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
-    arguments: 3.9.1 # added in pyenv v1.2.22
+    arguments: 3.9.4 # added in pyenv v1.2.26
   displayName: 'install python 3.9.1'
 
 # Building 3.8 last on purpose because the installer on windows clobbers the system's hosted python
@@ -27,8 +27,8 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
-    arguments: 3.8.7 # added in pyenv v1.2.22
-  displayName: 'install python 3.8.6'
+    arguments: 3.8.9 # added in pyenv v1.2.25
+  displayName: 'install python 3.8.9'
 
 # Upload artifactory build info
 - task: ArtifactoryCollectIssues@1
