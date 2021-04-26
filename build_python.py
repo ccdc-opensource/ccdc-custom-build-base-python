@@ -120,8 +120,9 @@ def python_interpreter():
 
 def prepare_output_dir():
     if linux():
+
         subprocess.run(f'sudo mkdir -p {python_destdir()}', shell=True)
-        subprocess.run(f'sudo chown $USER {python_destdir()}', shell=True)
+        subprocess.run(f'sudo chown $USER {python_destdir()}; echo "chown $USER {python_destdir()}"', shell=True)
 
 def install_from_msi():
     import urllib.request
@@ -145,6 +146,8 @@ def install_prerequisites():
             subprocess.run('sudo yum update -y', shell=True, check=True)
             subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel openssl-devel tk-devel xz xz-devel libffi-devel', shell=True, check=True)
             # See https://jira.ccdc.cam.ac.uk/browse/BLD-5684
+            subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
+            subprocess.run(f'sudo chown $USER {python_version_destdir()}; echo "chown $USER {python_version_destdir()}"', shell=True)
             SqlitePackage().build()
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
