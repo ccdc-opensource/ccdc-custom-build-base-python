@@ -4,10 +4,64 @@ import subprocess
 import sys
 import os
 from pathlib import Path
+from ccdc.thirdparty.package import Package, AutoconfMixin, MakeInstallMixin, NoArchiveMixin, CMakeMixin
 
 package_name = 'base_python'
 python_version = sys.argv[1]
 macos_deployment_target = '10.15'
+
+class InstallInBasePythonMixin(object):
+    @property
+    def install_directory(self):
+        return python_version_destdir()
+
+class SqlitePackage(InstallInBasePythonMixin, AutoconfMixin, NoArchiveMixin, Package):
+    '''SQLite'''
+    name = 'sqlite'
+    version = '3.35.5'
+    tarversion = '3350500'
+
+    @property
+    def source_archives(self):
+        return {
+            f'sqlite-autoconf-{self.tarversion}.tar.gz': f'https://www.sqlite.org/2021/sqlite-autoconf-{self.tarversion}.tar.gz'
+        }
+
+    @property
+    def main_source_directory_path(self):
+        return self.source_extracted / f'{self.name}-autoconf-{self.tarversion}'
+
+    @property
+    def cflags(self):
+        return super().cflags + [
+            '-DSQLITE_ENABLE_FTS3',
+            '-DSQLITE_ENABLE_FTS3_PARENTHESIS',
+            '-DSQLITE_ENABLE_FTS4',
+            '-DSQLITE_ENABLE_FTS5',
+            '-DSQLITE_ENABLE_EXPLAIN_COMMENTS',
+            '-DSQLITE_ENABLE_NULL_TRIM',
+            '-DSQLITE_MAX_COLUMN=10000',
+            '-DSQLITE_ENABLE_JSON1',
+            '-DSQLITE_ENABLE_RTREE',
+            '-DSQLITE_TCL=0',
+            '-fPIC',
+        ]
+
+    @property
+    def ldflags(self):
+        return super().ldflags + [
+            '-lm'
+        ]
+
+    @property
+    def arguments_to_configuration_script(self):
+        return super().arguments_to_configuration_script + [
+            '--enable-threadsafe',
+            '--enable-shared=no',
+            '--enable-static=yes',
+            '--disable-readline',
+            '--disable-dependency-tracking',
+        ]
 
 def macos():
     return sys.platform == 'darwin'
@@ -89,7 +143,9 @@ def install_prerequisites():
     if linux():
         if centos():
             subprocess.run('sudo yum update -y', shell=True, check=True)
-            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel xz xz-devel libffi-devel', shell=True, check=True)
+            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel openssl-devel tk-devel xz xz-devel libffi-devel', shell=True, check=True)
+            # See https://jira.ccdc.cam.ac.uk/browse/BLD-5684
+            SqlitePackage().build()
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)

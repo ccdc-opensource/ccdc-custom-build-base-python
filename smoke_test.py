@@ -2,6 +2,10 @@ import platform
 
 # there should be no issues importing sqlite libraries
 import sqlite3
+import distutils.version
+# Ensure we haven't inadvertently got the (ancient) system SQLite
+assert distutils.version.LooseVersion('3.17.0') <= distutils.version.LooseVersion(sqlite3.sqlite_version)
+sqlite3.connect(":memory:")
 
 # pyenv has trouble building the tkinter extension, so checking for that
 # this tends to happen on macos, where even the exception handling below
