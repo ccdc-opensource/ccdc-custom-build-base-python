@@ -16,7 +16,7 @@ steps:
 
 - task: PythonScript@0
   # requires more up to date openssl than one provided by centos 7
-  condition: ne(variables.artifactory.platformName, 'centos7')
+  condition: ne('$(artifactory.platformName)', 'centos7')
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
