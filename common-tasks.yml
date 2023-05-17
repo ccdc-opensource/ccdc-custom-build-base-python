@@ -4,7 +4,33 @@ steps:
   inputs:
     scriptSource: 'filePath'
     scriptPath: build_python.py
-  displayName: 'install python'
+    arguments: 3.7.9 # later versions don't have windows installers
+  displayName: 'install python 3.7.9'
+
+- task: PythonScript@0
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: build_python.py
+    arguments: 3.9.11
+  displayName: 'install python 3.9.11'
+
+- task: PythonScript@0
+  # requires more up to date openssl than one provided by centos 7
+  condition: ne('$(artifactory.platformName)', 'centos7')
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: build_python.py
+    arguments: 3.10.3
+  displayName: 'install python 3.10.3'
+
+# Building 3.8 last on purpose because the installer on windows clobbers the system's hosted python
+# Just keep it last or wonder why the system is loading python2 afterwards...
+- task: PythonScript@0
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: build_python.py
+    arguments: 3.8.10 # later versions don't have windows installers
+  displayName: 'install python 3.8.10'
 
 # Upload artifactory build info
 - task: ArtifactoryCollectIssues@1
@@ -33,7 +59,7 @@ steps:
       {
         "files": [
           {
-            "pattern": "$(Build.ArtifactStagingDirectory)/python*",
+            "pattern": "$(Build.ArtifactStagingDirectory)/base_python*",
             "target": "ccdc-3rdparty-python-interpreters"
           }
         ]

@@ -3,11 +3,67 @@ import shutil
 import subprocess
 import sys
 import os
-from pathlib import Path
+from platform import processor
 
-package_name = 'python'
-python_version = '3.7.7'
+from pathlib import Path
+from ccdc.thirdparty.package import Package, AutoconfMixin, MakeInstallMixin, NoArchiveMixin, CMakeMixin
+
+package_name = 'base_python'
+python_version = sys.argv[1]
 macos_deployment_target = '10.15'
+
+class InstallInBasePythonMixin(object):
+    @property
+    def install_directory(self):
+        return python_version_destdir()
+
+class SqlitePackage(InstallInBasePythonMixin, AutoconfMixin, NoArchiveMixin, Package):
+    '''SQLite'''
+    name = 'sqlite'
+    version = '3.38.2'
+    tarversion = '3380200'
+
+    @property
+    def source_archives(self):
+        return {
+            f'sqlite-autoconf-{self.tarversion}.tar.gz': f'https://www.sqlite.org/2022/sqlite-autoconf-{self.tarversion}.tar.gz'
+        }
+
+    @property
+    def main_source_directory_path(self):
+        return self.source_extracted / f'{self.name}-autoconf-{self.tarversion}'
+
+    @property
+    def cflags(self):
+        return super().cflags + [
+            '-DSQLITE_ENABLE_FTS3',
+            '-DSQLITE_ENABLE_FTS3_PARENTHESIS',
+            '-DSQLITE_ENABLE_FTS4',
+            '-DSQLITE_ENABLE_FTS5',
+            '-DSQLITE_ENABLE_EXPLAIN_COMMENTS',
+            '-DSQLITE_ENABLE_NULL_TRIM',
+            '-DSQLITE_MAX_COLUMN=10000',
+            '-DSQLITE_ENABLE_JSON1',
+            '-DSQLITE_ENABLE_RTREE',
+            '-DSQLITE_TCL=0',
+            '-fPIC',
+        ]
+
+    @property
+    def ldflags(self):
+        return super().ldflags + [
+            '-lm'
+        ]
+
+    @property
+    def arguments_to_configuration_script(self):
+        return super().arguments_to_configuration_script + [
+            '--enable-threadsafe',
+            '--enable-shared=no',
+            '--enable-static=yes',
+            '--disable-readline',
+            '--disable-dependency-tracking',
+        ]
 
 def macos():
     return sys.platform == 'darwin'
@@ -35,6 +91,10 @@ def platform():
         else:
             version = subprocess.check_output('lsb_release -r -s', shell=True).decode('utf-8').strip()
             return f'ubuntu{version}'
+    if macos():
+        if processor() == 'arm':
+            return 'darwin-arm'
+
     return sys.platform
 
 def output_base_name():
@@ -51,17 +111,24 @@ def output_base_name():
 
 def python_destdir():
     if windows():
-        return Path('D:\\x_mirror\\buildman\\tools\\Python')
+        return Path('D:\\x_mirror\\buildman\\tools\\base_python')
     else:
-        return Path('/opt/ccdc/third-party/python')
+        return Path('/opt/ccdc/third-party/base_python')
 
 def python_version_destdir():
     return python_destdir() / output_base_name()
 
+def python_interpreter():
+    if windows():
+        return python_version_destdir() / 'python.exe'
+    else:
+        return python_version_destdir() / 'bin' / 'python'
+
 def prepare_output_dir():
     if linux():
+
         subprocess.run(f'sudo mkdir -p {python_destdir()}', shell=True)
-        subprocess.run(f'sudo chown $USER {python_destdir()}', shell=True)
+        subprocess.run(f'sudo chown $(id -u) {python_destdir()}; echo "chown $(id -u) {python_destdir()}"', shell=True)
 
 def install_from_msi():
     import urllib.request
@@ -78,11 +145,16 @@ def install_from_msi():
 
 def install_prerequisites():
     if macos():
+        subprocess.run(['brew', 'update'], check=True)
         subprocess.run(['brew', 'install', 'openssl', 'readline', 'sqlite3', 'xz', 'zlib', 'tcl-tk'], check=True)
     if linux():
         if centos():
             subprocess.run('sudo yum update -y', shell=True, check=True)
-            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel xz xz-devel libffi-devel', shell=True, check=True)
+            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel openssl-devel tk-devel xz xz-devel libffi-devel', shell=True, check=True)
+            # See https://jira.ccdc.cam.ac.uk/browse/BLD-5684
+            subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
+            subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
+            SqlitePackage().build()
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
@@ -98,18 +170,36 @@ def install_pyenv():
 def install_pyenv_version(version):
     python_build_env = dict(os.environ)
     if macos():
-        python_build_env['PATH']=f"/usr/local/opt/tcl-tk/bin:{python_build_env['PATH']}"
-        python_build_env['LDFLAGS']=f"-L/usr/local/opt/tcl-tk/lib -mmacosx-version-min={macos_deployment_target}"
-        python_build_env['CPPFLAGS']=f"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
-        python_build_env['PKG_CONFIG_PATH']="/usr/local/opt/tcl-tk/lib/pkgconfig"
-        python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
+        if processor() == 'arm':
+            python_build_env['MACOSX_DEPLOYMENT_TARGET']=f'{macos_deployment_target}'
+            python_build_env['PATH']=f"/opt/homebrew//opt/tcl-tk/bin:{python_build_env['PATH']}"
+            python_build_env['LDFLAGS']=f"-L/opt/homebrew/opt/tcl-tk/lib -mmacosx-version-min={macos_deployment_target}"
+            python_build_env['CFLAGS']=f"-I/opt/homebrew/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
+            python_build_env['CPPFLAGS']=f"-I/opt/homebrew/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
+            python_build_env['PKG_CONFIG_PATH']="/opt/homebrew/opt/tcl-tk/lib/pkgconfig"
+            python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/opt/homebrew/opt/tcl-tk/include' --with-tcltk-libs='-L/opt/homebrew/opt/tcl-tk/lib -ltcl8.6 -ltk8.6' --enable-shared"
+        else:
+            python_build_env['MACOSX_DEPLOYMENT_TARGET']=f'{macos_deployment_target}'
+            python_build_env['PATH']=f"/usr/local/opt/tcl-tk/bin:{python_build_env['PATH']}"
+            python_build_env['LDFLAGS']=f"-L/usr/local/opt/tcl-tk/lib -mmacosx-version-min={macos_deployment_target}"
+            python_build_env['CFLAGS']=f"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
+            python_build_env['CPPFLAGS']=f"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
+            python_build_env['PKG_CONFIG_PATH']="/usr/local/opt/tcl-tk/lib/pkgconfig"
+            python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6' --enable-shared"
+
+        subprocess.run(f'sudo "--preserve-env=MACOSX_DEPLOYMENT_TARGET,PATH,LDFLAGS,CFLAGS,CPPFLAGS,PKG_CONFIG_PATH,PYTHON_CONFIGURE_OPTS" python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+
     if linux():
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
+        python_build_env['PYTHON_CONFIGURE_OPTS']="--enable-shared"
         
-    subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+        subprocess.run(f'sudo "--preserve-env=PATH,PYTHON_CONFIGURE_OPTS" /tmp/pyenvinst/plugins/python-build/bin/python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
         
 def output_archive_filename():
         return f'{output_base_name()}.tar.gz'
+
+def smoke_test():
+    subprocess.check_call([f'{ python_interpreter() }', 'smoke_test.py'])
 
 def create_archive():
     if 'BUILD_ARTIFACTSTAGINGDIRECTORY' in os.environ:
@@ -143,6 +233,7 @@ def main():
         install_prerequisites()
         install_pyenv()
         install_pyenv_version(python_version)
+    smoke_test()
     create_archive()
 
 if __name__ == "__main__":
