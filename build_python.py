@@ -105,9 +105,14 @@ def install_pyenv_version(version):
         python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
     if linux():
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
-        
-    subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
-        
+
+    try:
+        subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+    except subprocess.CalledProcessError:
+        with open(f"/tmp/python-build.20230526201213.377.log", 'r') as f:
+            print(f.read())
+        raise
+
 def output_archive_filename():
         return f'{output_base_name()}.tar.gz'
 
