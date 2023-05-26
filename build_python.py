@@ -83,12 +83,11 @@ def install_prerequisites():
     if linux():
         if centos():
             subprocess.run('sudo yum update -y', shell=True, check=True)
-            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel xz xz-devel libffi-devel', shell=True, check=True)
+            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel xz xz-devel libffi-devel patch', shell=True, check=True)
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
-            subprocess.run('sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev', shell=True, check=True)
-
+            subprocess.run('sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev patch', shell=True, check=True)
 def install_pyenv():
     if macos():
         subprocess.run(['brew', 'install', 'pyenv'], check=True)
@@ -106,15 +105,9 @@ def install_pyenv_version(version):
         python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
     if linux():
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
-    try:
-        cp = subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, capture_output=True, env=python_build_env)
-    except subprocess.CalledProcessError as e:
-        print(f"stdout:\n{e.stdout.decode()}\n\nstderr:\n{e.stderr.decode()}\n")
-        log_filename = re.search(r"Results logged to (\S+)", e.stderr.decode()).group(1)
-        with open(log_filename, 'r') as f:
-            print(f.read())
-        raise
-
+        
+    subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+      
 def output_archive_filename():
         return f'{output_base_name()}.tar.gz'
 
