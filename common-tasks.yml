@@ -26,7 +26,9 @@ steps:
   displayName: 'Collect issues'
 
 - script: |
-    PYTHON_VERSION=$(echo $(Build.ArtifactStagingDirectory)/$(filename) | sed -E 's/.*python-([0-9]+\.[0-9]+).*/\1/')
+    filename=$(ls $(Build.ArtifactStagingDirectory)/*.tar.gz)
+    echo "Filename: $filename"
+    PYTHON_VERSION=$(echo $filename | sed -E 's/.*python-([0-9]+\.[0-9]+).*/\1/')
     echo "Python version: $PYTHON_VERSION"
     echo "##vso[task.setvariable variable=PythonVersion]$PYTHON_VERSION"
   displayName: 'Extract Python version'
