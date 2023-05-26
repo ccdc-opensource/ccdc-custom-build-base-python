@@ -25,6 +25,12 @@ steps:
     buildNumber: '$(Build.BuildNumber)-$(artifactory.platformName)'
   displayName: 'Collect issues'
 
+- script: |
+    PYTHON_VERSION=$(echo $(Build.ArtifactStagingDirectory)/$(filename) | sed -E 's/.*python-([0-9]+\.[0-9]+).*/\1/')
+    echo "Python version: $PYTHON_VERSION"
+    echo "##vso[task.setvariable variable=PythonVersion]$PYTHON_VERSION"
+  displayName: 'Extract Python version'
+
 - task: ArtifactoryGenericUpload@2
   inputs:
     artifactoryService: 'devops-ccdc-3rd-party'
@@ -33,8 +39,8 @@ steps:
       {
         "files": [
           {
-            "pattern": "$(Build.ArtifactStagingDirectory)/python*",
-            "target": "ccdc-3rdparty-python-interpreters"
+            "pattern": "$(Build.ArtifactStagingDirectory)/*.tar.gz",
+            "target": "ccdc-3rdparty-python-interpreters/python/$(PythonVersion)/"
           }
         ]
       }
