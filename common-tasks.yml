@@ -33,7 +33,7 @@ steps:
       {
         "files": [
           {
-            "pattern": "$(Build.ArtifactStagingDirectory)/python/*",
+            "pattern": "$(Build.ArtifactStagingDirectory)/python*",
             "target": "ccdc-3rdparty-python-interpreters"
           }
         ]
