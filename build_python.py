@@ -7,7 +7,7 @@ from pathlib import Path
 
 package_name = 'python'
 python_version = '3.9.1'
-macos_deployment_target = '10.15'
+macos_deployment_target = '11'
 
 def macos():
     return sys.platform == 'darwin'
