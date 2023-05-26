@@ -109,6 +109,7 @@ def install_pyenv_version(version):
     try:
         cp = subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, capture_output=True, env=python_build_env)
     except subprocess.CalledProcessError as e:
+        print(f"stdout:\n{e.stdout.decode()}\n\nstderr:\n{e.stderr.decode()}\n")
         log_filename = re.search(r"Results logged to (\S+)", e.stderr.decode()).group(1)
         with open(log_filename, 'r') as f:
             print(f.read())
