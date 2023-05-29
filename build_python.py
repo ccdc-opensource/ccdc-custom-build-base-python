@@ -108,8 +108,8 @@ def install_pyenv_version(version):
     if linux():
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
     if centos():
-        python_build_env['CPPFLAGS']=f"-I/usr/include/openssl"
-        python_build_env['LDFLAGS']=f"-L/usr/lib64/openssl"
+        python_build_env['CPPFLAGS'] = "-I/usr/include/openssl"
+        python_build_env['LDFLAGS'] = "-L/usr/lib64"
        
     subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
       
