@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 package_name = 'python'
-python_version = '3.9.1'
+python_version = '3.10.3'
 macos_deployment_target = '11'
 
 def macos():
@@ -79,6 +79,7 @@ def install_from_msi():
 
 def install_prerequisites():
     if macos():
+        subprocess.run(['brew', 'update'], check=True)
         subprocess.run(['brew', 'install', 'openssl', 'readline', 'sqlite3', 'xz', 'zlib', 'tcl-tk'], check=True)
     if linux():
         if centos():
