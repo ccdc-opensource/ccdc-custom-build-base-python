@@ -3,11 +3,12 @@ import shutil
 import subprocess
 import sys
 import os
+import re
 from pathlib import Path
 
 package_name = 'python'
-python_version = '3.7.7'
-macos_deployment_target = '10.15'
+python_version = '3.9.1'
+macos_deployment_target = '11'
 
 def macos():
     return sys.platform == 'darwin'
@@ -78,16 +79,17 @@ def install_from_msi():
 
 def install_prerequisites():
     if macos():
+        subprocess.run(['brew', 'update'], check=True)
         subprocess.run(['brew', 'install', 'openssl', 'readline', 'sqlite3', 'xz', 'zlib', 'tcl-tk'], check=True)
     if linux():
         if centos():
             subprocess.run('sudo yum update -y', shell=True, check=True)
-            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel xz xz-devel libffi-devel', shell=True, check=True)
+            subprocess.run('sudo yum install -y https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm', shell=True, check=True)
+            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel xz xz-devel libffi-devel patch powershell', shell=True, check=True)
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
-            subprocess.run('sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev', shell=True, check=True)
-
+            subprocess.run('sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev patch', shell=True, check=True)
 def install_pyenv():
     if macos():
         subprocess.run(['brew', 'install', 'pyenv'], check=True)
@@ -105,9 +107,9 @@ def install_pyenv_version(version):
         python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
     if linux():
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
-        
+       
     subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
-        
+      
 def output_archive_filename():
         return f'{output_base_name()}.tar.gz'
 
