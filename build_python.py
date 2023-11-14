@@ -7,8 +7,8 @@ import re
 from pathlib import Path
 
 package_name = 'python'
-python_version = '3.9.1'
-macos_deployment_target = '11'
+python_version = '3.11.6'
+macos_deployment_target = '10.15'
 
 def macos():
     return sys.platform == 'darwin'
@@ -85,7 +85,8 @@ def install_prerequisites():
         if centos():
             subprocess.run('sudo yum update -y', shell=True, check=True)
             subprocess.run('sudo yum install -y https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm', shell=True, check=True)
-            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel xz xz-devel libffi-devel patch powershell', shell=True, check=True)
+            subprocess.run('sudo yum install -y epel-release', shell=True, check=True)
+            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl11-libs openssl11-devel tk-devel xz xz-devel libffi-devel patch powershell', shell=True, check=True)
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
@@ -107,6 +108,9 @@ def install_pyenv_version(version):
         python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
     if linux():
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
+        if centos():
+            python_build_env['LDFLAGS']=subprocess.check_output(["pkg-config", "--libs", "openssl11"]).strip()
+            python_build_env['CPPFLAGS']=subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).strip()
        
     subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
       
