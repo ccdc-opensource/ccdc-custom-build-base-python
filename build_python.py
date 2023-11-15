@@ -10,6 +10,7 @@ package_name = 'python'
 python_version = '3.11.6'
 macos_deployment_target = '10.15'
 
+
 def macos():
     return sys.platform == 'darwin'
 
@@ -77,6 +78,7 @@ def install_from_msi():
                 shutil.copyfileobj(response, final_file)
         subprocess.run(f'{localfile} /quiet InstallAllUsers=0 Include_launcher=0 Include_doc=0 Include_debug=1 Include_symbols=1 Shortcuts=0 Include_test=0 CompileAll=1 TargetDir="{python_version_destdir()}" SimpleInstallDescription="Just for me, no test suite."', shell=True, check=True)
 
+
 def install_prerequisites():
     if macos():
         subprocess.run(['brew', 'update'], check=True)
@@ -91,6 +93,8 @@ def install_prerequisites():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
             subprocess.run('sudo apt-get -y install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev patch', shell=True, check=True)
+
+
 def install_pyenv():
     if macos():
         subprocess.run(['brew', 'install', 'pyenv'], check=True)
@@ -98,24 +102,27 @@ def install_pyenv():
         subprocess.run(['rm -rf /tmp/pyenvinst'], shell=True, check=True)
         subprocess.run(['git clone https://github.com/pyenv/pyenv.git /tmp/pyenvinst'], shell=True, check=True)
 
+
 def install_pyenv_version(version):
     python_build_env = dict(os.environ)
     if macos():
-        python_build_env['PATH']=f"/usr/local/opt/tcl-tk/bin:{python_build_env['PATH']}"
-        python_build_env['LDFLAGS']=f"-L/usr/local/opt/tcl-tk/lib -mmacosx-version-min={macos_deployment_target}"
-        python_build_env['CPPFLAGS']=f"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
-        python_build_env['PKG_CONFIG_PATH']="/usr/local/opt/tcl-tk/lib/pkgconfig"
-        python_build_env['PYTHON_CONFIGURE_OPTS']="--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
+        python_build_env['PATH'] = f"/usr/local/opt/tcl-tk/bin:{python_build_env['PATH']}"
+        python_build_env['LDFLAGS'] = f"-L/usr/local/opt/tcl-tk/lib -mmacosx-version-min={macos_deployment_target}"
+        python_build_env['CPPFLAGS'] = f"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
+        python_build_env['PKG_CONFIG_PATH'] = "/usr/local/opt/tcl-tk/lib/pkgconfig"
+        python_build_env['PYTHON_CONFIGURE_OPTS'] = "--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
     if linux():
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
         if centos():
-            python_build_env['LDFLAGS']=subprocess.check_output(["pkg-config", "--libs", "openssl11"]).strip()
-            python_build_env['CPPFLAGS']=subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).strip()
-       
+            python_build_env['LDFLAGS'] = subprocess.check_output(["pkg-config", "--libs", "openssl11"]).strip()
+            python_build_env['CPPFLAGS'] = subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).strip()
+
     subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
-      
+
+
 def output_archive_filename():
-        return f'{output_base_name()}.tar.gz'
+    return f'{output_base_name()}.tar.gz'
+
 
 def create_archive():
     if 'BUILD_ARTIFACTSTAGINGDIRECTORY' in os.environ:
@@ -140,6 +147,7 @@ def create_archive():
         command.insert(1, '--force-local')
         # keep the name + version directory in the archive, but not the package name directory
         subprocess.run(command, check=True, cwd=python_destdir())
+
 
 def main():
     prepare_output_dir()
