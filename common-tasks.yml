@@ -46,7 +46,7 @@ steps:
       {
         "files": [
           {
-            "pattern": "$(Build.ArtifactStagingDirectory)/python*.tar.gz",
+            "pattern": "$(Build.ArtifactStagingDirectory)/base_python*.tar.gz",
             "target": "ccdc-3rdparty-python-interpreters/base_python/$(PythonVersion)/"
           }
         ]
