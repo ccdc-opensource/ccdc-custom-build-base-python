@@ -3,7 +3,6 @@ import shutil
 import subprocess
 import sys
 import os
-import re
 from pathlib import Path
 
 
@@ -174,6 +173,7 @@ def main():
         install_pyenv_version(python_version)
     smoke_test()
     create_archive()
+
 
 if __name__ == "__main__":
     main()

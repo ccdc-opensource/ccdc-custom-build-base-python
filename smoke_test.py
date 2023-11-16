@@ -1,5 +1,3 @@
-import platform
-
 # there should be no issues importing sqlite libraries
 import sqlite3
 from packaging import version
