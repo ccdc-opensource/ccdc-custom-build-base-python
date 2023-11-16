@@ -23,7 +23,7 @@ jobs:
 
   - job: macOS
     pool:
-      vmImage: "macOS-latest"
+      vmImage: "macOS-11"
     variables:
       artifactory.platformName: "darwin"
     steps:
