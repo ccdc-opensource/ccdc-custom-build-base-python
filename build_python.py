@@ -184,6 +184,7 @@ def install_pyenv_version(version):
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
         if centos():
             python_build_env['LD_LIBRARY_PATH'] = f'{python_version_destdir()}/lib'
+            python_build_env['PKG_CONFIG_PATH'] = f'{python_version_destdir()}/lib/pkgconfig'
             python_build_env['LDFLAGS'] = subprocess.check_output(["pkg-config", "--libs", "openssl11"]).strip()
             python_build_env['CPPFLAGS'] = subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).strip()
             python_build_env['PYTHON_CONFIGURE_OPTS']="--enable-shared"
