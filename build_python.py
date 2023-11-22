@@ -195,7 +195,7 @@ def install_pyenv_version(version):
             python_build_env['PKG_CONFIG_PATH'] = f'{python_version_destdir()}/lib/pkgconfig'
             python_build_env['LDFLAGS'] = subprocess.check_output(["pkg-config", "--libs", "openssl11"]).decode().strip() + f' -L{python_version_destdir()}/lib -lsqlite3'
             python_build_env['CPPFLAGS'] = subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).decode().strip() + f' -I{python_version_destdir()}/include'
-            python_build_env['PYTHON_CONFIGURE_OPTS']="--enable-shared"
+            python_build_env['PYTHON_CONFIGURE_OPTS']=f"--enable-shared CPPFLAGS=\"-I{python_version_destdir()}/include\" LDFLAGS=\"-L{python_version_destdir()}/lib\""
             subprocess.run(f'sudo /tmp/pyenvinst/plugins/python-build/bin/python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
             return
     subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
