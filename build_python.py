@@ -157,7 +157,7 @@ def install_prerequisites():
             # See https://jira.ccdc.cam.ac.uk/browse/BLD-5684
             subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
             subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
-            SqlitePackage().build()
+            # SqlitePackage().build()
             subprocess.run(f'echo "ls -l {python_version_destdir()}/lib"', shell=True)
             subprocess.run(f'ls -l {python_version_destdir()}/lib', shell=True)
             subprocess.run(f'echo "ls -l {python_version_destdir()}/include"', shell=True)
