@@ -158,6 +158,11 @@ def install_prerequisites():
             subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
             subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
             SqlitePackage().build()
+            subprocess.run(f'echo "ls -l {python_version_destdir()}/lib"', shell=True)
+            subprocess.run(f'echo "`ls -l {python_version_destdir()}/lib`"', shell=True)
+            subprocess.run(f'echo "ls -l {python_version_destdir()}/include"', shell=True)
+            subprocess.run(f'echo "`ls -l {python_version_destdir()}/include`"', shell=True)
+
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
