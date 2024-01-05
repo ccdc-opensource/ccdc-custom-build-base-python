@@ -196,13 +196,13 @@ def install_pyenv_version(version):
             python_build_env['LD_RUN_PATH'] = f'{python_version_destdir()}/lib'
             python_build_env['LD_LIBRARY_PATH'] = f"{python_version_destdir()}/lib:{python_build_env['LD_LIBRARY_PATH']}"
             python_build_env['PKG_CONFIG_PATH'] = f'{python_version_destdir()}/lib/pkgconfig'
-            #python_build_env['LDFLAGS'] = f'{subprocess.check_output(["pkg-config", "--libs", "openssl11"]).decode().strip()} -L{python_version_destdir()}/lib -lsqlite3'
+            #python_build_env['LDFLAGS'] = f'{subprocess.check_output(["pkg-config", "--libs", "openssl11"]).decode().strip()} -L{python_version_destdir()}/lib'
             #python_build_env['CPPFLAGS'] = f'{subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).decode().strip()} -I{python_version_destdir()}/include'
-            python_build_env['LDFLAGS'] = f'-L{python_version_destdir()}/lib -lsqlite3 {subprocess.check_output(["pkg-config", "--libs", "openssl11"]).decode().strip()}'
+            python_build_env['LDFLAGS'] = f'-L{python_version_destdir()}/lib {subprocess.check_output(["pkg-config", "--libs", "openssl11"]).decode().strip()}'
             python_build_env['CPPFLAGS'] = f'-I{python_version_destdir()}/include {subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).decode().strip()}'
             #python_build_env['PYTHON_CONFIGURE_OPTS']=f"--enable-shared LD_RUN_PATH={python_version_destdir()}/lib LDFLAGS=\"{python_build_env['LDFLAGS']}\" CPPFLAGS=\"{python_build_env['CPPFLAGS']}\""
             python_build_env['PYTHON_CONFIGURE_OPTS']="--enable-shared"
-            subprocess.run(f"sed -i 's#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS --enable-shared LD_RUN_PATH={python_version_destdir()}/lib LD_LIBRARY_PATH={python_version_destdir()}/lib LDFLAGS=\"-L{python_version_destdir()}/lib -lsqlite3 -L/usr/lib64/openssl11 -lssl -lcrypto\" CPPFLAGS=\"-I{python_version_destdir()}/include -I/usr/include/openssl11\" ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#' /tmp/pyenvinst/plugins/python-build/bin/python-build", shell=True, check=True, env=python_build_env)
+            subprocess.run(f"sed -i 's#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS --enable-shared LD_RUN_PATH={python_version_destdir()}/lib LD_LIBRARY_PATH={python_version_destdir()}/lib LDFLAGS=\"-L{python_version_destdir()}/lib -L/usr/lib64/openssl11 -lssl -lcrypto\" CPPFLAGS=\"-I{python_version_destdir()}/include -I/usr/include/openssl11\" ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#' /tmp/pyenvinst/plugins/python-build/bin/python-build", shell=True, check=True, env=python_build_env)
             subprocess.run(f'grep CONFIGURE_OPTS /tmp/pyenvinst/plugins/python-build/bin/python-build', shell=True, check=True, env=python_build_env)
             subprocess.run(f'sudo -E /tmp/pyenvinst/plugins/python-build/bin/python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
             return
