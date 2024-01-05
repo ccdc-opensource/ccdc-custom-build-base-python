@@ -21,8 +21,8 @@ class InstallInBasePythonMixin(object):
 class SqlitePackage(InstallInBasePythonMixin, AutoconfMixin, NoArchiveMixin, Package):
     '''SQLite'''
     name = 'sqlite'
-    version = '3.44.0'
-    tarversion = '3440000'
+    version = '3.44.2'
+    tarversion = '3440200'
 
     @property
     def source_archives(self):
@@ -166,6 +166,7 @@ def install_prerequisites():
             subprocess.run(f'ls -l {python_version_destdir()}/include', shell=True)
             subprocess.run(f'echo "ls -l {python_version_destdir()}/bin"', shell=True)
             subprocess.run(f'ls -l {python_version_destdir()}/bin', shell=True)
+            subprocess.run(f'find {python_version_destdir()}', shell=True)
 
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
