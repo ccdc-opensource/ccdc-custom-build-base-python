@@ -158,6 +158,8 @@ def install_prerequisites():
             subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
             subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
             SqlitePackage().build()
+            subprocess.run(f'echo "ls -l {python_version_destdir()}/lib64"', shell=True)
+            subprocess.run(f'ls -l {python_version_destdir()}/lib64', shell=True)
             subprocess.run(f'echo "ls -l {python_version_destdir()}/lib"', shell=True)
             subprocess.run(f'ls -l {python_version_destdir()}/lib', shell=True)
             subprocess.run(f'echo "ls -l {python_version_destdir()}/include"', shell=True)
@@ -192,7 +194,7 @@ def install_pyenv_version(version):
         if centos():
             python_build_env['PATH']=f"{python_version_destdir()}/bin:{python_build_env['PATH']}"
             python_build_env['LD_RUN_PATH'] = f'{python_version_destdir()}/lib'
-            python_build_env['LD_LIBRARY_PATH'] = f'{python_version_destdir()}/lib'
+            python_build_env['LD_LIBRARY_PATH'] = f"{python_version_destdir()}/lib:{python_build_env['LD_LIBRARY_PATH']}"
             python_build_env['PKG_CONFIG_PATH'] = f'{python_version_destdir()}/lib/pkgconfig'
             #python_build_env['LDFLAGS'] = f'{subprocess.check_output(["pkg-config", "--libs", "openssl11"]).decode().strip()} -L{python_version_destdir()}/lib -lsqlite3'
             #python_build_env['CPPFLAGS'] = f'{subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).decode().strip()} -I{python_version_destdir()}/include'
