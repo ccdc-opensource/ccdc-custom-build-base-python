@@ -199,7 +199,7 @@ def install_pyenv_version(version):
             python_build_env['LDFLAGS'] = f'-L{python_version_destdir()}/lib {subprocess.check_output(["pkg-config", "--libs", "openssl11"]).decode().strip()}'
             python_build_env['CPPFLAGS'] = f'-I{python_version_destdir()}/include {subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).decode().strip()}'
             python_build_env['PYTHON_CONFIGURE_OPTS']=f"--enable-shared LD_RUN_PATH={python_version_destdir()}/lib LDFLAGS=\"{python_build_env['LDFLAGS']}\" CPPFLAGS=\"{python_build_env['CPPFLAGS']}\""
-            subprocess.run('sudo -E env', shell=True, check=True, env=python_build_env)
+            subprocess.run(f'grep CONFIGURE_OPTS /tmp/pyenvinst/plugins/python-build/bin/python-build', shell=True, check=True, env=python_build_env)
             subprocess.run(f'sudo -E /tmp/pyenvinst/plugins/python-build/bin/python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
             return
     subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
