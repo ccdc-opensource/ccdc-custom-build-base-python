@@ -15,6 +15,8 @@ macos_deployment_target = '10.15'
 class InstallInBasePythonMixin(object):
     @property
     def install_directory(self):
+        if centos():
+            return '/usr/local/'
         return python_version_destdir()
 
 
@@ -157,7 +159,7 @@ def install_prerequisites():
             # See https://jira.ccdc.cam.ac.uk/browse/BLD-5684
             subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
             subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
-            #SqlitePackage().build()
+            SqlitePackage().build()
             subprocess.run(f'echo "ls -l {python_version_destdir()}/lib64"', shell=True)
             subprocess.run(f'ls -l {python_version_destdir()}/lib64', shell=True)
             subprocess.run(f'echo "ls -l {python_version_destdir()}/lib"', shell=True)
