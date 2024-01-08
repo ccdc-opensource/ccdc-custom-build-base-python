@@ -21,13 +21,13 @@ class InstallInBasePythonMixin(object):
 class SqlitePackage(InstallInBasePythonMixin, AutoconfMixin, NoArchiveMixin, Package):
     '''SQLite'''
     name = 'sqlite'
-    version = '3.44.2'
-    tarversion = '3440200'
+    version = '3.18.0'
+    tarversion = '3180000'
 
     @property
     def source_archives(self):
         return {
-            f'sqlite-autoconf-{self.tarversion}.tar.gz': f'https://www.sqlite.org/2023/sqlite-autoconf-{self.tarversion}.tar.gz'
+            f'sqlite-autoconf-{self.tarversion}.tar.gz': f'https://www.sqlite.org/2017/sqlite-autoconf-{self.tarversion}.tar.gz'
         }
 
     @property
