@@ -153,7 +153,7 @@ def install_prerequisites():
             subprocess.run('sudo yum update -y', shell=True, check=True)
             subprocess.run('sudo yum install -y https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm', shell=True, check=True)
             subprocess.run('sudo yum install -y epel-release', shell=True, check=True)
-            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel libsqlite3x-devel openssl11-libs openssl11-devel tkinter tk-devel xz xz-devel libffi-devel patch powershell', shell=True, check=True)
+            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel libsqlite3x-devel openssl11-libs openssl11-devel tkinter tk-devel tcl-devel xz xz-devel libffi-devel patch powershell', shell=True, check=True)
             # See https://jira.ccdc.cam.ac.uk/browse/BLD-5684
             subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
             subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
