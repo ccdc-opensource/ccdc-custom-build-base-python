@@ -10,36 +10,36 @@ jobs:
       # No need to setup specific python, the container's python3 will be used
       - template: common-tasks.yml
 
-    #  - job: Ubuntu2204
-    #    pool:
-    #      vmImage: "ubuntu-22.04"
-    #    variables:
-    #      artifactory.platformName: "ubuntu22.04"
-    #    steps:
-    #      - task: UsePythonVersion@0
-    #        inputs:
-    #          versionSpec: "3.8"
-    #      - template: common-tasks.yml
-    #
-    #  - job: macOS
-    #    pool:
-    #      vmImage: "macOS-11"
-    #    variables:
-    #      artifactory.platformName: "darwin"
-    #    steps:
-    #      - task: UsePythonVersion@0
-    #        inputs:
-    #          versionSpec: "3.8"
-    #      - template: common-tasks.yml
-    #
-    #  - job: WindowsVS2019
-    #    pool:
-    #      vmImage: "windows-2019"
-    #    variables:
-    #      build_vs_version: "2019"
-    #      artifactory.platformName: "windows"
-    #    steps:
-    #      - task: UsePythonVersion@0
-    #        inputs:
-    #          versionSpec: "3.8"
-    #      - template: common-tasks.yml
+  - job: Ubuntu2204
+    pool:
+      vmImage: "ubuntu-22.04"
+    variables:
+      artifactory.platformName: "ubuntu22.04"
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "3.8"
+      - template: common-tasks.yml
+
+  - job: macOS
+    pool:
+      vmImage: "macOS-11"
+    variables:
+      artifactory.platformName: "darwin"
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "3.8"
+      - template: common-tasks.yml
+
+  - job: WindowsVS2019
+    pool:
+      vmImage: "windows-2019"
+    variables:
+      build_vs_version: "2019"
+      artifactory.platformName: "windows"
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "3.8"
+      - template: common-tasks.yml
