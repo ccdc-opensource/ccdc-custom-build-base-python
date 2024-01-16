@@ -4,11 +4,67 @@ import subprocess
 import sys
 import os
 from pathlib import Path
+from ccdc.thirdparty.package import Package, AutoconfMixin, MakeInstallMixin, NoArchiveMixin, CMakeMixin
 
 
 package_name = 'base_python'
 python_version = '3.11.6'
 macos_deployment_target = '10.15'
+
+
+class InstallInBasePythonMixin(object):
+    @property
+    def install_directory(self):
+        return python_version_destdir()
+
+
+class SqlitePackage(InstallInBasePythonMixin, AutoconfMixin, NoArchiveMixin, Package):
+    '''SQLite'''
+    name = 'sqlite'
+    version = '3.18.0'
+    tarversion = '3180000'
+
+    @property
+    def source_archives(self):
+        return {
+            f'sqlite-autoconf-{self.tarversion}.tar.gz': f'https://www.sqlite.org/2017/sqlite-autoconf-{self.tarversion}.tar.gz'
+        }
+
+    @property
+    def main_source_directory_path(self):
+        return self.source_extracted / f'{self.name}-autoconf-{self.tarversion}'
+
+    @property
+    def cflags(self):
+        return super().cflags + [
+            '-DSQLITE_ENABLE_FTS3',
+            '-DSQLITE_ENABLE_FTS3_PARENTHESIS',
+            '-DSQLITE_ENABLE_FTS4',
+            '-DSQLITE_ENABLE_FTS5',
+            '-DSQLITE_ENABLE_EXPLAIN_COMMENTS',
+            '-DSQLITE_ENABLE_NULL_TRIM',
+            '-DSQLITE_MAX_COLUMN=10000',
+            '-DSQLITE_ENABLE_JSON1',
+            '-DSQLITE_ENABLE_RTREE',
+            '-DSQLITE_TCL=0',
+            '-fPIC',
+        ]
+
+    @property
+    def ldflags(self):
+        return super().ldflags + [
+            '-lm'
+        ]
+
+    @property
+    def arguments_to_configuration_script(self):
+        return super().arguments_to_configuration_script + [
+            '--enable-threadsafe',
+            '--enable-shared=no',
+            '--enable-static=yes',
+            '--disable-readline',
+            '--disable-dependency-tracking',
+        ]
 
 
 def macos():
@@ -53,9 +109,9 @@ def output_base_name():
 
 def python_destdir():
     if windows():
-        return Path('D:\\x_mirror\\buildman\\tools\\Python')
+        return Path('D:\\x_mirror\\buildman\\tools\\base_python')
     else:
-        return Path('/opt/ccdc/third-party/python')
+        return Path('/opt/ccdc/third-party/base_python')
 
 def python_version_destdir():
     return python_destdir() / output_base_name()
@@ -71,7 +127,7 @@ def python_interpreter():
 def prepare_output_dir():
     if linux():
         subprocess.run(f'sudo mkdir -p {python_destdir()}', shell=True)
-        subprocess.run(f'sudo chown $USER {python_destdir()}', shell=True)
+        subprocess.run(f'sudo chown $(id -u) {python_destdir()}', shell=True)
 
 
 def install_from_msi():
@@ -97,7 +153,12 @@ def install_prerequisites():
             subprocess.run('sudo yum update -y', shell=True, check=True)
             subprocess.run('sudo yum install -y https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm', shell=True, check=True)
             subprocess.run('sudo yum install -y epel-release', shell=True, check=True)
-            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl11-libs openssl11-devel tk-devel xz xz-devel libffi-devel patch powershell', shell=True, check=True)
+            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel libsqlite3x-devel openssl11-libs openssl11-devel tkinter tk tk-devel tcl-devel xz xz-devel libffi-devel patch powershell', shell=True, check=True)
+            # See https://jira.ccdc.cam.ac.uk/browse/BLD-5684
+            subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
+            subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
+            #SqlitePackage().build()
+
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
@@ -123,9 +184,17 @@ def install_pyenv_version(version):
     if linux():
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
         if centos():
-            python_build_env['LDFLAGS'] = subprocess.check_output(["pkg-config", "--libs", "openssl11"]).strip()
-            python_build_env['CPPFLAGS'] = subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).strip()
-
+            python_build_env['PATH']=f"{python_version_destdir()}/bin:{python_build_env['PATH']}"
+            python_build_env['LD_RUN_PATH'] = f'{python_version_destdir()}/lib'
+            python_build_env['LD_LIBRARY_PATH'] = f"{python_version_destdir()}/lib:{python_build_env['LD_LIBRARY_PATH']}:/usr/lib64"
+            python_build_env['PKG_CONFIG_PATH'] = f'{python_version_destdir()}/lib/pkgconfig'
+            python_build_env['LDFLAGS'] = f'-L{python_version_destdir()}/lib {subprocess.check_output(["pkg-config", "--libs", "openssl11"]).decode().strip()} -L/usr/lib64 -ltcl8.5 -ltk8.5'
+            python_build_env['CPPFLAGS'] = f'-I{python_version_destdir()}/include {subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).decode().strip()}'
+            python_build_env['PYTHON_CONFIGURE_OPTS']="--enable-shared"
+            subprocess.run(f"sed -i 's#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS --enable-shared LD_RUN_PATH={python_version_destdir()}/lib LD_LIBRARY_PATH={python_version_destdir()}/lib LDFLAGS=\"-L{python_version_destdir()}/lib -L/usr/lib64/openssl11 -lssl -lcrypto -L/usr/lib64 -ltcl8.5 -ltk8.5\" CPPFLAGS=\"-I{python_version_destdir()}/include -I/usr/include/openssl11\" ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#' /tmp/pyenvinst/plugins/python-build/bin/python-build", shell=True, check=True, env=python_build_env)
+            subprocess.run(f'grep CONFIGURE_OPTS /tmp/pyenvinst/plugins/python-build/bin/python-build', shell=True, check=True, env=python_build_env)
+            subprocess.run(f'sudo -E /tmp/pyenvinst/plugins/python-build/bin/python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+            return
     subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
 
 
