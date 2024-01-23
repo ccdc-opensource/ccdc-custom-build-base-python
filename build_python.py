@@ -21,13 +21,13 @@ class InstallInBasePythonMixin(object):
 class SqlitePackage(InstallInBasePythonMixin, AutoconfMixin, NoArchiveMixin, Package):
     '''SQLite'''
     name = 'sqlite'
-    version = '3.18.0'
-    tarversion = '3180000'
+    version = '3.45.0'
+    tarversion = '3450000'
 
     @property
     def source_archives(self):
         return {
-            f'sqlite-autoconf-{self.tarversion}.tar.gz': f'https://www.sqlite.org/2017/sqlite-autoconf-{self.tarversion}.tar.gz'
+            f'sqlite-autoconf-{self.tarversion}.tar.gz': f'https://www.sqlite.org/2024/sqlite-autoconf-{self.tarversion}.tar.gz'
         }
 
     @property
@@ -153,11 +153,11 @@ def install_prerequisites():
             subprocess.run('sudo yum update -y', shell=True, check=True)
             subprocess.run('sudo yum install -y https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm', shell=True, check=True)
             subprocess.run('sudo yum install -y epel-release', shell=True, check=True)
-            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel libsqlite3x-devel openssl11-libs openssl11-devel tkinter tk tk-devel tcl-devel xz xz-devel libffi-devel patch powershell', shell=True, check=True)
+            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel openssl11-libs openssl11-devel tkinter tk tk-devel tcl-devel xz xz-devel libffi-devel patch powershell', shell=True, check=True)
             # See https://jira.ccdc.cam.ac.uk/browse/BLD-5684
             subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
             subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
-            #SqlitePackage().build()
+            SqlitePackage().build()
 
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
