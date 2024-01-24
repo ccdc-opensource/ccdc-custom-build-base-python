@@ -158,6 +158,7 @@ def install_prerequisites():
             subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
             subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
             SqlitePackage().build()
+            subprocess.run(f'find {python_version_destdir()}', shell=True)
 
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
@@ -186,8 +187,8 @@ def install_pyenv_version(version):
         if centos():
             python_build_env['PATH']=f"{python_version_destdir()}/bin:{python_build_env['PATH']}"
             python_build_env['LD_RUN_PATH'] = f'{python_version_destdir()}/lib'
-            python_build_env['LD_LIBRARY_PATH'] = f"{python_version_destdir()}/lib:{python_build_env['LD_LIBRARY_PATH']}:/usr/lib64"
-            python_build_env['PKG_CONFIG_PATH'] = f'{python_version_destdir()}/lib/pkgconfig'
+            python_build_env['LD_LIBRARY_PATH'] = f"{python_version_destdir()}/lib:/usr/lib64:{python_build_env['LD_LIBRARY_PATH']}"
+            #python_build_env['PKG_CONFIG_PATH'] = f'{python_version_destdir()}/lib/pkgconfig'
             python_build_env['LDFLAGS'] = f'-L{python_version_destdir()}/lib {subprocess.check_output(["pkg-config", "--libs", "openssl11"]).decode().strip()} -L/usr/lib64 -ltcl8.5 -ltk8.5'
             python_build_env['CPPFLAGS'] = f'-I{python_version_destdir()}/include {subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).decode().strip()}'
             python_build_env['PYTHON_CONFIGURE_OPTS']="--enable-shared"
