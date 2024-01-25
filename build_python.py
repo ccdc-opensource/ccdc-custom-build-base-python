@@ -21,13 +21,13 @@ class InstallInBasePythonMixin(object):
 class SqlitePackage(InstallInBasePythonMixin, AutoconfMixin, NoArchiveMixin, Package):
     '''SQLite'''
     name = 'sqlite'
-    version = '3.18.0'
-    tarversion = '3180000'
+    version = '3.45.0'
+    tarversion = '3450000'
 
     @property
     def source_archives(self):
         return {
-            f'sqlite-autoconf-{self.tarversion}.tar.gz': f'https://www.sqlite.org/2017/sqlite-autoconf-{self.tarversion}.tar.gz'
+            f'sqlite-autoconf-{self.tarversion}.tar.gz': f'https://www.sqlite.org/2024/sqlite-autoconf-{self.tarversion}.tar.gz'
         }
 
     @property
@@ -153,11 +153,11 @@ def install_prerequisites():
             subprocess.run('sudo yum update -y', shell=True, check=True)
             subprocess.run('sudo yum install -y https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm', shell=True, check=True)
             subprocess.run('sudo yum install -y epel-release', shell=True, check=True)
-            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel libsqlite3x-devel openssl11-libs openssl11-devel tkinter tk tk-devel tcl-devel xz xz-devel libffi-devel patch powershell', shell=True, check=True)
+            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel openssl11-libs openssl11-devel tkinter tk tk-devel tcl-devel xz xz-devel libffi-devel patch powershell', shell=True, check=True)
             # See https://jira.ccdc.cam.ac.uk/browse/BLD-5684
             subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
             subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
-            #SqlitePackage().build()
+            SqlitePackage().build()
 
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
@@ -185,13 +185,8 @@ def install_pyenv_version(version):
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
         if centos():
             python_build_env['PATH']=f"{python_version_destdir()}/bin:{python_build_env['PATH']}"
-            python_build_env['LD_RUN_PATH'] = f'{python_version_destdir()}/lib'
-            python_build_env['LD_LIBRARY_PATH'] = f"{python_version_destdir()}/lib:{python_build_env['LD_LIBRARY_PATH']}:/usr/lib64"
-            python_build_env['PKG_CONFIG_PATH'] = f'{python_version_destdir()}/lib/pkgconfig'
-            python_build_env['LDFLAGS'] = f'-L{python_version_destdir()}/lib {subprocess.check_output(["pkg-config", "--libs", "openssl11"]).decode().strip()} -L/usr/lib64 -ltcl8.5 -ltk8.5'
-            python_build_env['CPPFLAGS'] = f'-I{python_version_destdir()}/include {subprocess.check_output(["pkg-config", "--cflags", "openssl11"]).decode().strip()}'
             python_build_env['PYTHON_CONFIGURE_OPTS']="--enable-shared"
-            subprocess.run(f"sed -i 's#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS --enable-shared LD_RUN_PATH={python_version_destdir()}/lib LD_LIBRARY_PATH={python_version_destdir()}/lib LDFLAGS=\"-L{python_version_destdir()}/lib -L/usr/lib64/openssl11 -lssl -lcrypto -L/usr/lib64 -ltcl8.5 -ltk8.5\" CPPFLAGS=\"-I{python_version_destdir()}/include -I/usr/include/openssl11\" ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#' /tmp/pyenvinst/plugins/python-build/bin/python-build", shell=True, check=True, env=python_build_env)
+            subprocess.run(f"sed -i 's#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS --enable-shared LD_RUN_PATH={python_version_destdir()}/lib LD_LIBRARY_PATH={python_version_destdir()}/lib LDFLAGS=\"-L{python_version_destdir()}/lib -L/usr/lib64/openssl11 -lssl -lcrypto -L/usr/lib64 -ltcl8.5 -ltk8.5 -lz -lm -ldl -lpthread\" CPPFLAGS=\"-I{python_version_destdir()}/include -I/usr/include/openssl11\" ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#' /tmp/pyenvinst/plugins/python-build/bin/python-build", shell=True, check=True, env=python_build_env)
             subprocess.run(f'grep CONFIGURE_OPTS /tmp/pyenvinst/plugins/python-build/bin/python-build', shell=True, check=True, env=python_build_env)
             subprocess.run(f'sudo -E /tmp/pyenvinst/plugins/python-build/bin/python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
             return

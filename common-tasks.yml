@@ -5,6 +5,8 @@ steps:
     scriptSource: 'filePath'
     scriptPath: build_python.py
   displayName: 'install python'
+  env:
+    MACOSX_DEPLOYMENT_TARGET: '10.15'
 
 # Upload artifactory build info
 - task: ArtifactoryCollectIssues@1
