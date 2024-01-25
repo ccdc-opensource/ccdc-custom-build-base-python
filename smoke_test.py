@@ -6,8 +6,8 @@ from packaging import version
 
 # Ensure we haven't inadvertently got the (ancient) system SQLite
 # Enable this test (the next two lines) when we can reliably build base python with an up-to-date version of sqlite3
-# sqlite_version = version.parse(sqlite3.sqlite_version)
-# assert version.parse('3.17.0') <= sqlite_version, f'Current version is {sqlite_version}'
+sqlite_version = version.parse(sqlite3.sqlite_version)
+assert version.parse('3.17.0') <= sqlite_version, f'Current version is {sqlite_version}'
 sqlite3.connect(":memory:")
 
 
