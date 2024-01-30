@@ -181,8 +181,8 @@ def install_pyenv_version(version):
         python_build_env['CPPFLAGS'] = f"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
         python_build_env['CFLAGS'] = f"-mmacosx-version-min={macos_deployment_target}"
         python_build_env['PKG_CONFIG_PATH'] = "/usr/local/opt/tcl-tk/lib/pkgconfig"
-        #python_build_env['PYTHON_CONFIGURE_OPTS'] = "--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6'"
-        subprocess.run(f"sed -i 's#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS --with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6 LDFLAGS=-L/usr/local/opt/tcl-tk/lib CPPFLAGS=\"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}\" CFLAGS=\"-mmacosx-version-min={macos_deployment_target}\" ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#' `which python-build`", shell=True, check=True, env=python_build_env)
+        python_build_env['PYTHON_CONFIGURE_OPTS'] = "--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6' CFLAGS='-mmacosx-version-min={macos_deployment_target}'"
+        #subprocess.run(f"sed -i 's#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS --with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6 LDFLAGS=-L/usr/local/opt/tcl-tk/lib CPPFLAGS=\"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}\" CFLAGS=\"-mmacosx-version-min={macos_deployment_target}\" ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#' `which python-build`", shell=True, check=True, env=python_build_env)
     if linux():
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
         if centos():
