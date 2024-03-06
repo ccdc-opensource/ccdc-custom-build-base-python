@@ -178,12 +178,12 @@ def install_pyenv_version(version):
     if macos():
         python_build_env['PATH'] = f"/usr/local/opt/tcl-tk/bin:{python_build_env['PATH']}"
         python_build_env['MACOSX_DEPLOYMENT_TARGET'] = macos_deployment_target
-        python_build_env['LDFLAGS'] = f"-L/usr/local/opt/tcl-tk/lib"
+        python_build_env['LDFLAGS'] = "-L/usr/local/opt/tcl-tk/lib"
         python_build_env['CPPFLAGS'] = f"-I/usr/local/opt/tcl-tk/include -mmacosx-version-min={macos_deployment_target}"
         python_build_env['CFLAGS'] = f"-mmacosx-version-min={macos_deployment_target}"
         python_build_env['PKG_CONFIG_PATH'] = "/usr/local/opt/tcl-tk/lib/pkgconfig"
-        python_build_env['PYTHON_CONFIGURE_OPTS'] = "--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6' --with-macosx-version-min={macos_deployment_target}"
-        python_build_env['CONFIGURE_OPTS'] = "--with-macosx-version-min={macos_deployment_target}"
+        python_build_env['PYTHON_CONFIGURE_OPTS'] = f"--with-tcltk-includes='-I/usr/local/opt/tcl-tk/include' --with-tcltk-libs='-L/usr/local/opt/tcl-tk/lib -ltcl8.6 -ltk8.6' --with-macosx-version-min={macos_deployment_target}"
+        python_build_env['CONFIGURE_OPTS'] = f"--with-macosx-version-min={macos_deployment_target}"
         subprocess.run(f'sudo -E python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
         return
     if linux():
