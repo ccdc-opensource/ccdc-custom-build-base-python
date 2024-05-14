@@ -79,6 +79,9 @@ def linux():
 def centos():
     return linux() and Path('/etc/centos-release').exists()
 
+def rocky():
+    return linux() and Path('/etc/rocky-release').exists()
+
 def debian():
     return linux() and Path('/etc/debian_version').exists()
 

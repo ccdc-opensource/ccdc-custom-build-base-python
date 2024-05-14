@@ -10,6 +10,17 @@ jobs:
       # No need to setup specific python, the container's python3 will be used
       - template: common-tasks.yml
 
+  - job: Rocky8
+    pool:
+      vmImage: "ubuntu-latest"
+    # We use a container to run the build as we must be compatible with centos7's older glibc
+    container: rockylinux/rockylinux:8
+    variables:
+      artifactory.platformName: "rocky8"
+    steps:
+      # No need to setup specific python, the container's python3 will be used
+      - template: common-tasks.yml
+
   - job: Ubuntu2204
     pool:
       vmImage: "ubuntu-22.04"
