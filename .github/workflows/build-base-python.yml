@@ -36,7 +36,7 @@ jobs:
         id: set_output
         run: |
           if [[ "${{ inputs.platforms }}" == "rocky8" ]]; then
-            echo container=ccdcrepository.azurecr.io/conan/rocky8-gcc13:latest >> $GITHUB_OUTPUT
+            echo container=ccdcrepository.azurecr.io/conan/rocky8-gcc10:latest >> $GITHUB_OUTPUT
             echo python=python3 >> $GITHUB_OUTPUT
           elif [[ "${{ inputs.platforms }}" == "ubuntu22" ]]; then
             echo python=python3 >> $GITHUB_OUTPUT
@@ -47,7 +47,7 @@ jobs:
           fi
 
           # We only want to build for Rocky8 right now
-          echo container=ccdcrepository.azurecr.io/conan/rocky8-gcc13:latest >> $GITHUB_OUTPUT
+          echo container=ccdcrepository.azurecr.io/conan/rocky8-gcc10:latest >> $GITHUB_OUTPUT
           echo python=python3 >> $GITHUB_OUTPUT
 
   build-upload:
