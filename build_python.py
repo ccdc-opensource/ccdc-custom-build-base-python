@@ -191,7 +191,7 @@ def install_pyenv_version(version):
         return
     if linux():
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
-        python_build_env['PYENV_DEBUG'] = '1'
+        #python_build_env['PYENV_DEBUG'] = '1'
 #        if centos():
 #            python_build_env['PATH']=f"{python_version_destdir()}/bin:{python_build_env['PATH']}"
 #            python_build_env['PYTHON_CONFIGURE_OPTS']="--enable-shared"
@@ -199,7 +199,13 @@ def install_pyenv_version(version):
 #            subprocess.run(f'grep CONFIGURE_OPTS /tmp/pyenvinst/plugins/python-build/bin/python-build', shell=True, check=True, env=python_build_env)
 #            subprocess.run(f'sudo -E /tmp/pyenvinst/plugins/python-build/bin/python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
 #            return
-    subprocess.run(f'sudo env "PATH=$PATH" python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+    try:
+        subprocess.run(f'sudo env "PATH=$PATH" python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+    except subprocess.CalledProcessError as e:
+        for filepath in Path('/tmp').glob('python-build.*.log'):
+            print(filepath)
+            print(filepath.read_text())
+        raise e
 
 
 def output_archive_filename():
@@ -234,7 +240,6 @@ def create_archive():
         command.insert(1, '--force-local')
         # keep the name + version directory in the archive, but not the package name directory
         subprocess.run(command, check=True, cwd=python_destdir())
-
 
 def main():
     prepare_output_dir()
