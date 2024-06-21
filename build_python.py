@@ -145,6 +145,9 @@ def install_prerequisites():
         subprocess.run(['brew', 'update'], check=True)
         subprocess.run(['brew', 'install', 'openssl', 'readline', 'sqlite3', 'xz', 'zlib', 'tcl-tk'], check=True)
     if linux():
+        if rocky():
+            subprocess.run('sudo dnf update -y ', shell=True, check=True)
+            subprocess.run('sudo dnf install -y git', shell=True, check=True)
         #        if centos():
         #            subprocess.run('sudo yum update -y', shell=True, check=True)
         #            subprocess.run('sudo yum install -y https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm', shell=True, check=True)
