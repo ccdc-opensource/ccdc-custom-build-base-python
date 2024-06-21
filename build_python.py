@@ -147,7 +147,7 @@ def install_prerequisites():
     if linux():
         if rocky():
             subprocess.run('sudo dnf update -y ', shell=True, check=True)
-            subprocess.run('sudo dnf install -y git zlib-devel', shell=True, check=True)
+            subprocess.run('sudo dnf install -y git zlib-devel bzip2-devel tk-devel tcl-devel libffi-devel', shell=True, check=True)
         #        if centos():
         #            subprocess.run('sudo yum update -y', shell=True, check=True)
         #            subprocess.run('sudo yum install -y https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm', shell=True, check=True)
