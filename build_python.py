@@ -96,8 +96,8 @@ def output_base_name():
         package_name,
         python_version,
     ]
-    if 'BUILD_BUILDNUMBER' in os.environ:
-        components.append(os.environ['BUILD_BUILDNUMBER'])
+    if 'GITHUB_RUN_NUMBER' in os.environ:
+        components.append(os.environ['GITHUB_RUN_NUMBER'])
     else:
         components.append('dont-use-me-dev-build')
     components.append(platform())
@@ -198,7 +198,7 @@ def install_pyenv_version(version):
 #            subprocess.run(f'grep CONFIGURE_OPTS /tmp/pyenvinst/plugins/python-build/bin/python-build', shell=True, check=True, env=python_build_env)
 #            subprocess.run(f'sudo -E /tmp/pyenvinst/plugins/python-build/bin/python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
 #            return
-    subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+    subprocess.run(f'sudo env "PATH=$PATH" python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
 
 
 def output_archive_filename():
