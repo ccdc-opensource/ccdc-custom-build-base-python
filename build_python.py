@@ -147,6 +147,9 @@ def install_prerequisites():
     if linux():
         if rocky():
             subprocess.run('sudo dnf update -y ', shell=True, check=True)
+            subprocess.run("sudo dnf install -y 'dnf-command(config-manager)'", shell=True, check=True)
+            subprocess.run('sudo dnf config-manager --enable powertools', shell=True, check=True)
+            subprocess.run('sudo dnf install -y epel-release', shell=True, check=True)
             subprocess.run(
                     'sudo dnf install -y git zlib-devel bzip2-devel tk-devel tcl-devel libffi-devel libsqlite3x-devel openssl3-devel',
                     shell=True,
