@@ -191,6 +191,7 @@ def install_pyenv_version(version):
         return
     if linux():
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
+        python_build_env['PYENV_DEBUG'] = '1'
 #        if centos():
 #            python_build_env['PATH']=f"{python_version_destdir()}/bin:{python_build_env['PATH']}"
 #            python_build_env['PYTHON_CONFIGURE_OPTS']="--enable-shared"
