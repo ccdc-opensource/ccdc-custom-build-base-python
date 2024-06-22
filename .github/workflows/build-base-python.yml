@@ -1,5 +1,5 @@
 # A github workflow file to build a base python
-name: Build Conan Packages
+name: Build Base Python
 
 on:  # yamllint disable-line rule:truthy
   workflow_dispatch:
