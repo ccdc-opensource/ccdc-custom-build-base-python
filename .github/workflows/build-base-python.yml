@@ -73,7 +73,11 @@ jobs:
 
       - name: Build base python
         run: |
-          ${{ needs.setup.outputs.python }} build_python.py
+          output=$(${{ needs.setup.outputs.python }} build_python.py | tail -n 1)
+          archive_filename=$(echo $output | awk '{print $2}')
+          archive_path=$(echo $output | awk '{print $NF}')
+          echo "archive_filename=$archive_filename" >> $GITHUB_ENV
+          echo "archive_path=$archive_path" >> $GITHUB_ENV
 
       - name: Set up JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
@@ -84,8 +88,7 @@ jobs:
         shell: bash
         run: |
           # Upload the base python to Artifactory
-          filename = $(ls -1 base_python-*.tar.gz)
           jf c use gh-ccdc-3rdparty-python-interpreters-read-write
           jfrog rt upload --flat \
-            "$filename \
+            "${{ env.archive_path }}/${{ env.archive_filename }}" \
             "ccdc-3rdparty-python-interpreters/base_python/3.11/"
