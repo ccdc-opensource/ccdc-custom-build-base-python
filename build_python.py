@@ -155,6 +155,10 @@ def install_prerequisites():
                     shell=True,
                     check=True
                     )
+
+            subprocess.run('dnf list openssl*', shell=True, check=True)
+            subprocess.run('dnf repoquery -l openssl3-devel', shell=True, check=True)
+            subprocess.run('dnf repoquery -l openssl3-libs', shell=True, check=True)
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
