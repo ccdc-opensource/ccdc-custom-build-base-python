@@ -76,8 +76,11 @@ jobs:
           output=$(${{ needs.setup.outputs.python }} build_python.py | tail -n 1)
           archive_filename=$(echo $output | awk '{print $2}')
           archive_path=$(echo $output | awk '{print $NF}')
+          version=$(echo $archive_filename | awk -F"-" '{print $2}')
+          shortversion=${version%.*}
           echo "archive_filename=$archive_filename" >> $GITHUB_ENV
           echo "archive_path=$archive_path" >> $GITHUB_ENV
+          echo "shortversion=$shortversion" >> $GITHUB_ENV
 
       - name: Set up JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
@@ -91,4 +94,4 @@ jobs:
           jf c use gh-ccdc-3rdparty-python-interpreters-read-write
           jfrog rt upload --flat \
             "${{ env.archive_path }}/${{ env.archive_filename }}" \
-            "ccdc-3rdparty-python-interpreters/base_python/3.11/"
+            "ccdc-3rdparty-python-interpreters/base_python/${{ env.shortversion }}/"
