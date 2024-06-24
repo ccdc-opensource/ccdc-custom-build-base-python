@@ -8,7 +8,7 @@ from ccdc.thirdparty.package import Package, AutoconfMixin, MakeInstallMixin, No
 
 
 package_name = 'base_python'
-python_version = '3.7.9'
+python_version = '3.9.4'
 macos_deployment_target = '10.15'
 
 
@@ -143,7 +143,7 @@ def install_from_msi():
 def install_prerequisites():
     if macos():
         subprocess.run(['brew', 'update'], check=True)
-        subprocess.run(['brew', 'install', 'openssl', 'readline', 'sqlite3', 'xz', 'zlib', 'tcl-tk'], check=True)
+        subprocess.run(['brew', 'install', 'openssl@3', 'readline', 'sqlite3', 'xz', 'zlib', 'tcl-tk'], check=True)
     if linux():
         if rocky():
             subprocess.run('sudo dnf update -y ', shell=True, check=True)
