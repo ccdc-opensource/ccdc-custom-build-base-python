@@ -193,7 +193,7 @@ def install_pyenv_version(version):
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
         #python_build_env['PYENV_DEBUG'] = '1'
 #    try:
-    subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+    subprocess.run(f'sudo env "PATH=$PATH" python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
 #    except subprocess.CalledProcessError as e:
 #        for filepath in Path('/tmp').glob('python-build.*.log'):
 #            print(filepath)
