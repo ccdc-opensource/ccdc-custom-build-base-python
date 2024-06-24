@@ -76,8 +76,8 @@ def windows():
 def linux():
     return sys.platform.startswith('linux')
 
-def centos():
-    return linux() and Path('/etc/centos-release').exists()
+def rocky():
+    return linux() and Path('/etc/rocky-release').exists()
 
 def debian():
     return linux() and Path('/etc/debian_version').exists()
@@ -86,13 +86,9 @@ def ubuntu():
     return debian() and subprocess.check_output('lsb_release -i -s', shell=True).decode('utf-8').strip() == 'Ubuntu'
 
 def platform():
-    if linux():
-        if centos():
-            version = subprocess.check_output('rpm -E %{rhel}', shell=True).decode('utf-8').strip()
-            return f'centos{version}'
-        else:
-            version = subprocess.check_output('lsb_release -r -s', shell=True).decode('utf-8').strip()
-            return f'ubuntu{version}'
+    if debian():
+        version = subprocess.check_output('lsb_release -r -s', shell=True).decode('utf-8').strip()
+        return f'ubuntu{version}'
     return sys.platform
 
 def output_base_name():
@@ -100,8 +96,8 @@ def output_base_name():
         package_name,
         python_version,
     ]
-    if 'BUILD_BUILDNUMBER' in os.environ:
-        components.append(os.environ['BUILD_BUILDNUMBER'])
+    if 'GITHUB_RUN_NUMBER' in os.environ:
+        components.append(os.environ['GITHUB_RUN_NUMBER'])
     else:
         components.append('dont-use-me-dev-build')
     components.append(platform())
@@ -149,16 +145,16 @@ def install_prerequisites():
         subprocess.run(['brew', 'update'], check=True)
         subprocess.run(['brew', 'install', 'openssl', 'readline', 'sqlite3', 'xz', 'zlib', 'tcl-tk'], check=True)
     if linux():
-        if centos():
-            subprocess.run('sudo yum update -y', shell=True, check=True)
-            subprocess.run('sudo yum install -y https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm', shell=True, check=True)
-            subprocess.run('sudo yum install -y epel-release', shell=True, check=True)
-            subprocess.run('sudo yum install -y findutils gcc zlib-devel bzip2 bzip2-devel readline-devel openssl11-libs openssl11-devel tkinter tk tk-devel tcl-devel xz xz-devel libffi-devel patch powershell', shell=True, check=True)
-            # See https://jira.ccdc.cam.ac.uk/browse/BLD-5684
-            subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
-            subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
-            SqlitePackage().build()
-
+        if rocky():
+            subprocess.run('sudo dnf update -y ', shell=True, check=True)
+            subprocess.run("sudo dnf install -y 'dnf-command(config-manager)'", shell=True, check=True)
+            subprocess.run('sudo dnf config-manager --enable powertools', shell=True, check=True)
+            subprocess.run('sudo dnf install -y epel-release', shell=True, check=True)
+            subprocess.run(
+                    'sudo dnf install -y git zlib-devel bzip2-devel tk-devel tcl-devel libffi-devel libsqlite3x-devel openssl-devel readline-devel xz-devel patch',
+                    shell=True,
+                    check=True
+                    )
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
@@ -191,14 +187,10 @@ def install_pyenv_version(version):
         subprocess.run(f'sudo -E python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
         return
     if linux():
+        if rocky():
+            python_build_env['LDFLAGS'] = f"{python_build_env.get('LDFLAGS', '')} -L/usr/lib64/openssl3 -L/usr/lib64 -lssl -lcrypto"
+            python_build_env['CPPFLAGS'] = f"{python_build_env.get('CPPFLAGS', '')} -I/usr/include/openssl3"
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
-        if centos():
-            python_build_env['PATH']=f"{python_version_destdir()}/bin:{python_build_env['PATH']}"
-            python_build_env['PYTHON_CONFIGURE_OPTS']="--enable-shared"
-            subprocess.run(f"sed -i 's#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#\"${{!PACKAGE_CONFIGURE_OPTS_ARRAY}}\" $CONFIGURE_OPTS --enable-shared LD_RUN_PATH={python_version_destdir()}/lib LD_LIBRARY_PATH={python_version_destdir()}/lib LDFLAGS=\"-L{python_version_destdir()}/lib -L/usr/lib64/openssl11 -lssl -lcrypto -L/usr/lib64 -ltcl8.5 -ltk8.5 -lz -lm -ldl -lpthread\" CPPFLAGS=\"-I{python_version_destdir()}/include -I/usr/include/openssl11\" ${{!PACKAGE_CONFIGURE_OPTS}} || return 1#' /tmp/pyenvinst/plugins/python-build/bin/python-build", shell=True, check=True, env=python_build_env)
-            subprocess.run(f'grep CONFIGURE_OPTS /tmp/pyenvinst/plugins/python-build/bin/python-build', shell=True, check=True, env=python_build_env)
-            subprocess.run(f'sudo -E /tmp/pyenvinst/plugins/python-build/bin/python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
-            return
     subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
 
 

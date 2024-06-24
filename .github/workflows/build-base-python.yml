@@ -1,0 +1,99 @@
+# A github workflow file to build a base python
+name: Build Base Python
+
+on:  # yamllint disable-line rule:truthy
+  workflow_dispatch:
+    inputs:
+      deploy:
+        type: choice
+        description: 'Whether to upload base python build to artifactory'
+        options:
+          - 'no-upload'
+          - 'upload'
+      platforms:
+        description: 'Platform to build for, eg. '
+        options:
+          - 'rocky8'
+          - 'ubuntu22'
+          - 'macos'
+          - 'windows'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      runson: ${{ steps.set_output.outputs.runson }}
+      container: ${{ steps.set_output.outputs.container }}
+      python: ${{ steps.set_output.outputs.python }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set output
+        id: set_output
+        run: |
+          if [[ "${{ inputs.platforms }}" == "rocky8" ]]; then
+            echo runson=ubuntu-latest >> $GITHUB_OUTPUT
+            echo container=ccdcrepository.azurecr.io/conan/rocky8-gcc10:latest >> $GITHUB_OUTPUT
+            echo python=python3 >> $GITHUB_OUTPUT
+          elif [[ "${{ inputs.platforms }}" == "ubuntu22" ]]; then
+            echo runson=ubuntu-latest >> $GITHUB_OUTPUT
+            echo python=python3 >> $GITHUB_OUTPUT
+          elif [[ "${{ inputs.platforms }}" == "macos" ]]; then
+            echo runson=macos-12 >> $GITHUB_OUTPUT
+            echo python=python >> $GITHUB_OUTPUT
+          elif [[ "${{ inputs.platforms }}" == "windows" ]]; then
+            echo runson=windows-2019 >> $GITHUB_OUTPUT
+            echo python=python >> $GITHUB_OUTPUT
+          fi
+
+  build-upload:
+    needs:
+      - setup
+    runs-on: ${{ needs.setup.outputs.runson }}
+    container:
+      image: ${{ needs.setup.outputs.container }}
+      credentials:
+        username: ${{ secrets.AZURE_CR_USER }}
+        password: ${{ secrets.AZURE_CR_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        if: ${{ needs.setup.outputs.python == 'python' }}
+        with:
+          python-version: '3.9'
+
+      - name: Set up Python environment
+        run: |
+          ${{ needs.setup.outputs.python }} --version
+          ${{ needs.setup.outputs.python }} -m pip install --upgrade pip wheel setuptools
+
+      - name: Build base python
+        run: |
+          output=$(${{ needs.setup.outputs.python }} build_python.py | tail -n 1)
+          archive_filename=$(echo $output | awk '{print $2}')
+          archive_path=$(echo $output | awk '{print $NF}')
+          version=$(echo $archive_filename | awk -F"-" '{print $2}')
+          shortversion=${version%.*}
+          echo "archive_filename=$archive_filename" >> $GITHUB_ENV
+          echo "archive_path=$archive_path" >> $GITHUB_ENV
+          echo "shortversion=$shortversion" >> $GITHUB_ENV
+
+      - name: Set up JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_ENV_1: ${{ secrets.ARTIFACTORY_GH_CCDC_3RDPARTY_PYTHON_INTERPRETERS_READ_WRITE_EXPORT }}
+
+      - name: Upload base python to Artifactory
+        shell: bash
+        run: |
+          # Upload the base python to Artifactory
+          jf c use gh-ccdc-3rdparty-python-interpreters-read-write
+          jfrog rt upload --flat \
+            "${{ env.archive_path }}/${{ env.archive_filename }}" \
+            "ccdc-3rdparty-python-interpreters/base_python/${{ env.shortversion }}/"
