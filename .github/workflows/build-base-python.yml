@@ -26,6 +26,7 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
+      runson: ${{ steps.set_output.outputs.runson }}
       container: ${{ steps.set_output.outputs.container }}
       python: ${{ steps.set_output.outputs.python }}
 
@@ -37,24 +38,28 @@ jobs:
         id: set_output
         run: |
           if [[ "${{ inputs.platforms }}" == "rocky8" ]]; then
+            echo runson=ubuntu-latest >> $GITHUB_OUTPUT
             echo container=ccdcrepository.azurecr.io/conan/rocky8-gcc10:latest >> $GITHUB_OUTPUT
             echo python=python3 >> $GITHUB_OUTPUT
           elif [[ "${{ inputs.platforms }}" == "ubuntu22" ]]; then
+            echo runson=ubuntu-latest >> $GITHUB_OUTPUT
             echo python=python3 >> $GITHUB_OUTPUT
           elif [[ "${{ inputs.platforms }}" == "macos" ]]; then
+            echo runson=macos-12 >> $GITHUB_OUTPUT
             echo python=python3 >> $GITHUB_OUTPUT
           elif [[ "${{ inputs.platforms }}" == "windows" ]]; then
+            echo runson=windows-2019 >> $GITHUB_OUTPUT
             echo python=python >> $GITHUB_OUTPUT
           fi
 
-          # We only want to build for Rocky8 right now
-          echo container=ccdcrepository.azurecr.io/conan/rocky8-gcc10:latest >> $GITHUB_OUTPUT
+          # Try building on macos
+          echo runson=macos-12 >> $GITHUB_OUTPUT
           echo python=python3 >> $GITHUB_OUTPUT
 
   build-upload:
     needs:
       - setup
-    runs-on: ubuntu-latest
+    runs-on: ${{ needs.setup.outputs.runson }}
     container:
       image: ${{ needs.setup.outputs.container }}
       credentials:
