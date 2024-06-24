@@ -158,11 +158,6 @@ def install_prerequisites():
             subprocess.run('dnf list openssl*', shell=True, check=True)
             subprocess.run('dnf repoquery -l openssl3-devel', shell=True, check=True)
             subprocess.run('dnf repoquery -l openssl3-libs', shell=True, check=True)
-
-            print('Check for openssl')
-            print(Path('/usr/include').glob('openssl*'))
-            print(Path('/usr/lib64').glob('lib*'))
-            print(Path('/usr/bin').glob('openssl*'))
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
@@ -195,10 +190,9 @@ def install_pyenv_version(version):
         subprocess.run(f'sudo -E python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
         return
     if linux():
-        #        if rocky():
-        #            python_build_env['LDFLAGS'] = f"{python_build_env.get('LDFLAGS', '')} -L/usr/lib64 -lssl -lcrypto"
-        #            python_build_env['CFLAGS'] = f"{python_build_env.get('CFLAGS', '')} -I/usr/include/openssl"
-        #            python_build_env['CPPFLAGS'] = f"{python_build_env.get('CPPFLAGS', '')} -I/usr/include/openssl"
+        if rocky():
+            python_build_env['LDFLAGS'] = f"{python_build_env.get('LDFLAGS', '')} -L/usr/lib64 -lssl -lcrypto"
+            python_build_env['CPPFLAGS'] = f"{python_build_env.get('CPPFLAGS', '')} -I/usr/include/openssl3"
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
         #python_build_env['PYENV_DEBUG'] = '1'
 #    try:
