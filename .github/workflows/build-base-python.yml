@@ -46,7 +46,7 @@ jobs:
             echo python=python3 >> $GITHUB_OUTPUT
           elif [[ "${{ inputs.platforms }}" == "macos" ]]; then
             echo runson=macos-12 >> $GITHUB_OUTPUT
-            echo python=python3 >> $GITHUB_OUTPUT
+            echo python=python >> $GITHUB_OUTPUT
           elif [[ "${{ inputs.platforms }}" == "windows" ]]; then
             echo runson=windows-2019 >> $GITHUB_OUTPUT
             echo python=python >> $GITHUB_OUTPUT
@@ -54,7 +54,7 @@ jobs:
 
           # Try building on macos
           echo runson=macos-12 >> $GITHUB_OUTPUT
-          echo python=python3 >> $GITHUB_OUTPUT
+          echo python=python >> $GITHUB_OUTPUT
 
   build-upload:
     needs:
