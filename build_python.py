@@ -156,6 +156,8 @@ def install_prerequisites():
                     check=True
                     )
             subprocess.run('dnf list openssl*', shell=True, check=True)
+            subprocess.run('dnf repoquery -l openssl3-devel', shell=True, check=True)
+            subprocess.run('dnf repoquery -l openssl3-libs', shell=True, check=True)
 
             print('Check for openssl')
             print(Path('/usr/include').glob('openssl*'))
