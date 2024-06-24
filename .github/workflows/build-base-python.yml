@@ -17,10 +17,6 @@ on:  # yamllint disable-line rule:truthy
           - 'ubuntu22'
           - 'macos'
           - 'windows'
-  push:
-    files:
-      - '.github/workflows/build-base-python.yml'
-      - 'build_python.py'
 
 jobs:
   setup:
@@ -52,10 +48,6 @@ jobs:
             echo python=python >> $GITHUB_OUTPUT
           fi
 
-          # Try building on macos
-          echo runson=macos-12 >> $GITHUB_OUTPUT
-          echo python=python >> $GITHUB_OUTPUT
-
   build-upload:
     needs:
       - setup
@@ -80,14 +72,6 @@ jobs:
         run: |
           ${{ needs.setup.outputs.python }} --version
           ${{ needs.setup.outputs.python }} -m pip install --upgrade pip wheel setuptools
-          # ${{ needs.setup.outputs.python }} -m pip install -r requirements.txt
-
-      - name: Create directory for base python
-        run: |
-          sudo mkdir -p /opt/ccdc/third-party-sources
-          sudo chmod 777 /opt/ccdc/third-party-sources
-          sudo mkdir -p /opt/ccdc/third-party/base_python
-          sudo chmod 777 /opt/ccdc/third-party/base_python
 
       - name: Build base python
         run: |
