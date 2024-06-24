@@ -192,7 +192,7 @@ def install_pyenv_version(version):
         return
     if linux():
         if rocky():
-            python_build_env['LDFLAGS'] = f"{python_build_env.get('LDFLAGS', '')} -L/usr/lib64/openssl3 -lssl -lcrypto"
+            python_build_env['LDFLAGS'] = f"{python_build_env.get('LDFLAGS', '')} -L/usr/lib64/openssl3 -L/usr/lib64 -lssl -lcrypto"
             python_build_env['CPPFLAGS'] = f"{python_build_env.get('CPPFLAGS', '')} -I/usr/include/openssl3"
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
         #python_build_env['PYENV_DEBUG'] = '1'
