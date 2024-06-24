@@ -17,6 +17,10 @@ on:  # yamllint disable-line rule:truthy
           - 'ubuntu22'
           - 'macos'
           - 'windows'
+  push:
+    files:
+      - '.github/workflows/build-base-python.yml'
+      - 'build_python.py'
 
 jobs:
   setup:
