@@ -155,10 +155,6 @@ def install_prerequisites():
                     shell=True,
                     check=True
                     )
-
-            subprocess.run('dnf list openssl*', shell=True, check=True)
-            subprocess.run('dnf repoquery -l openssl3-devel', shell=True, check=True)
-            subprocess.run('dnf repoquery -l openssl3-libs', shell=True, check=True)
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
@@ -195,14 +191,7 @@ def install_pyenv_version(version):
             python_build_env['LDFLAGS'] = f"{python_build_env.get('LDFLAGS', '')} -L/usr/lib64/openssl3 -L/usr/lib64 -lssl -lcrypto"
             python_build_env['CPPFLAGS'] = f"{python_build_env.get('CPPFLAGS', '')} -I/usr/include/openssl3"
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
-        #python_build_env['PYENV_DEBUG'] = '1'
-#    try:
     subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
-#    except subprocess.CalledProcessError as e:
-#        for filepath in Path('/tmp').glob('python-build.*.log'):
-#            print(filepath)
-#            print(filepath.read_text())
-#        raise e
 
 
 def output_archive_filename():
@@ -237,6 +226,7 @@ def create_archive():
         command.insert(1, '--force-local')
         # keep the name + version directory in the archive, but not the package name directory
         subprocess.run(command, check=True, cwd=python_destdir())
+
 
 def main():
     prepare_output_dir()
