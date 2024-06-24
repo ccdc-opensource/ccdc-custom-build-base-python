@@ -82,6 +82,11 @@ jobs:
           ${{ needs.setup.outputs.python }} -m pip install --upgrade pip wheel setuptools
           # ${{ needs.setup.outputs.python }} -m pip install -r requirements.txt
 
+      - name: Create output dir
+        run: |
+          sudo mkdir -p /opt/ccdc/third-party/base_python
+          sudo chmod 777 /opt/ccdc/third-party/base_python
+
       - name: Build base python
         run: |
           output=$(${{ needs.setup.outputs.python }} build_python.py | tail -n 1)
