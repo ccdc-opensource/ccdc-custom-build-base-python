@@ -155,6 +155,9 @@ def install_prerequisites():
                     shell=True,
                     check=True
                     )
+            subprocess.run('ls -l /usr/include/openssl', shell=True, check=True)
+            subprocess.run('ls -l /usr/lib64', shell=True, check=True)
+            subprocess.run('ls -l /usr/bin', shell=True, check=True)
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
