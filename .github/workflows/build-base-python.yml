@@ -73,12 +73,11 @@ jobs:
 
       - name: Build base python
         run: |
-          ${{ needs.setup.outputs.python }} build_python.py
-          # output=$(${{ needs.setup.outputs.python }} build_python.py | tail -n 1)
-          # archive_filename=$(echo $output | awk '{print $2}')
-          # archive_path=$(echo $output | awk '{print $NF}')
-          # echo "archive_filename=$archive_filename" >> $GITHUB_ENV
-          # echo "archive_path=$archive_path" >> $GITHUB_ENV
+          output=$(${{ needs.setup.outputs.python }} build_python.py | tail -n 1)
+          archive_filename=$(echo $output | awk '{print $2}')
+          archive_path=$(echo $output | awk '{print $NF}')
+          echo "archive_filename=$archive_filename" >> $GITHUB_ENV
+          echo "archive_path=$archive_path" >> $GITHUB_ENV
 
       - name: Set up JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4

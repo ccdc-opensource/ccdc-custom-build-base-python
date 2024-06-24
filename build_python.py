@@ -151,7 +151,7 @@ def install_prerequisites():
             subprocess.run('sudo dnf config-manager --enable powertools', shell=True, check=True)
             subprocess.run('sudo dnf install -y epel-release', shell=True, check=True)
             subprocess.run(
-                    'sudo dnf install -y git zlib-devel bzip2-devel tk-devel tcl-devel libffi-devel libsqlite3x-devel openssl3-devel readline-devel xz-devel patch',
+                    'sudo dnf install -y git zlib-devel bzip2-devel tk-devel tcl-devel libffi-devel libsqlite3x-devel openssl-devel readline-devel xz-devel patch',
                     shell=True,
                     check=True
                     )
@@ -197,7 +197,7 @@ def install_pyenv_version(version):
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
         #python_build_env['PYENV_DEBUG'] = '1'
 #    try:
-    subprocess.run(f'sudo env "PATH=$PATH" python-build -v {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
+    subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
 #    except subprocess.CalledProcessError as e:
 #        for filepath in Path('/tmp').glob('python-build.*.log'):
 #            print(filepath)
