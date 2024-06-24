@@ -8,7 +8,7 @@ from ccdc.thirdparty.package import Package, AutoconfMixin, MakeInstallMixin, No
 
 
 package_name = 'base_python'
-python_version = '3.11.6'
+python_version = '3.9.4'
 macos_deployment_target = '10.15'
 
 
