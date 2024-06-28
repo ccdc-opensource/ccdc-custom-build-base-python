@@ -151,10 +151,14 @@ def install_prerequisites():
             subprocess.run('sudo dnf config-manager --enable powertools', shell=True, check=True)
             subprocess.run('sudo dnf install -y epel-release', shell=True, check=True)
             subprocess.run(
-                    'sudo dnf install -y git zlib-devel bzip2-devel tk-devel tcl-devel libffi-devel libsqlite3x-devel openssl-devel readline-devel xz-devel patch',
+                    'sudo dnf install -y git zlib-devel bzip2-devel tk-devel tcl-devel libffi-devel openssl-devel readline-devel xz-devel patch',
                     shell=True,
                     check=True
                     )
+            # See https://jira.ccdc.cam.ac.uk/browse/BLD-5684
+            subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
+            subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
+            SqlitePackage().build()
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
