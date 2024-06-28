@@ -11,6 +11,7 @@ on:  # yamllint disable-line rule:truthy
           - 'no-upload'
           - 'upload'
       platforms:
+        type: choice
         description: 'Platform to build for, eg. '
         options:
           - 'rocky8'
@@ -75,9 +76,10 @@ jobs:
 
       - name: Build base python
         run: |
-          output=$(${{ needs.setup.outputs.python }} build_python.py | tail -n 1)
-          archive_filename=$(echo $output | awk '{print $2}')
-          archive_path=$(echo $output | awk '{print $NF}')
+          output=$(${{ needs.setup.outputs.python }} build_python.py)
+          output_lastline=$(echo $output | grep Creating | tail -n 1)
+          archive_filename=$(echo $output_lastline | awk '{print $2}')
+          archive_path=$(echo $output_lastline | awk '{print $NF}')
           version=$(echo $archive_filename | awk -F"-" '{print $2}')
           shortversion=${version%.*}
           echo "archive_filename=$archive_filename" >> $GITHUB_ENV
