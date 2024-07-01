@@ -76,17 +76,16 @@ jobs:
 
       - name: Build base python
         run: |
-          ${{ needs.setup.outputs.python }} build_python.py
-          #          ${{ needs.setup.outputs.python }} build_python.py > build_python.log 2>&1
-          #          cat build_python.log
-          #          output_lastline=$(cat build_python.log | grep Creating | tail -n 1)
-          #          archive_filename=$(echo $output_lastline | awk '{print $2}')
-          #          archive_path=$(echo $output_lastline | awk '{print $NF}')
-          #          version=$(echo $archive_filename | awk -F"-" '{print $2}')
-          #          shortversion=${version%.*}
-          #          echo "archive_filename=$archive_filename" >> $GITHUB_ENV
-          #          echo "archive_path=$archive_path" >> $GITHUB_ENV
-          #          echo "shortversion=$shortversion" >> $GITHUB_ENV
+          ${{ needs.setup.outputs.python }} build_python.py > build_python.log 2>&1
+          cat build_python.log
+          output_lastline=$(cat build_python.log | grep Creating | tail -n 1)
+          archive_filename=$(echo $output_lastline | awk '{print $2}')
+          archive_path=$(echo $output_lastline | awk '{print $NF}')
+          version=$(echo $archive_filename | awk -F"-" '{print $2}')
+          shortversion=${version%.*}
+          echo "archive_filename=$archive_filename" >> $GITHUB_ENV
+          echo "archive_path=$archive_path" >> $GITHUB_ENV
+          echo "shortversion=$shortversion" >> $GITHUB_ENV
 
       - name: Set up JFrog CLI
         if: ${{ inputs.deploy == 'upload' }}
