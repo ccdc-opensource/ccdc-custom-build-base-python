@@ -76,9 +76,9 @@ jobs:
 
       - name: Build base python
         run: |
-          output=$(${{ needs.setup.outputs.python }} build_python.py)
-          echo $output
-          output_lastline=$(echo $output | grep Creating | tail -n 1)
+          ${{ needs.setup.outputs.python }} build_python.py > build_python.log 2>&1
+          cat build_python.log
+          output_lastline=$(cat build_python.log | grep Creating | tail -n 1)
           archive_filename=$(echo $output_lastline | awk '{print $2}')
           archive_path=$(echo $output_lastline | awk '{print $NF}')
           version=$(echo $archive_filename | awk -F"-" '{print $2}')
