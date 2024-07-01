@@ -193,6 +193,8 @@ def install_pyenv_version(version):
         return
     if linux():
         if rocky():
+            python_build_env['LD_RUN_PATH'] = f"{python_version_destdir()}/lib"
+            python_build_env['LD_LIBRARY_PATH'] = f"{python_version_destdir()}/lib"
             python_build_env['LDFLAGS'] = f"{python_build_env.get('LDFLAGS', '')} -Wl,-rpath,{python_version_destdir()}/lib -L{python_version_destdir()}/lib -L/usr/lib64/openssl -L/usr/lib64 -lssl -lcrypto"
             python_build_env['CPPFLAGS'] = f"{python_build_env.get('CPPFLAGS', '')} -I{python_version_destdir()}/include -I/usr/include/openssl"
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
