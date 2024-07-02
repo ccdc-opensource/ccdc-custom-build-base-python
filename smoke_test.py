@@ -21,4 +21,4 @@ try:
 except _tkinter.TclError:
     print("no display, but that's ok")
 
-print('python interpreter smoke test ok')
+print('PASS: python interpreter smoke test ok')

@@ -151,10 +151,14 @@ def install_prerequisites():
             subprocess.run('sudo dnf config-manager --enable powertools', shell=True, check=True)
             subprocess.run('sudo dnf install -y epel-release', shell=True, check=True)
             subprocess.run(
-                    'sudo dnf install -y git zlib-devel bzip2-devel tk-devel tcl-devel libffi-devel libsqlite3x-devel openssl-devel readline-devel xz-devel patch',
+                    'sudo dnf install -y git zlib-devel bzip2-devel tk-devel tcl-devel libffi-devel openssl-devel readline-devel xz-devel patch',
                     shell=True,
                     check=True
                     )
+            # See https://jira.ccdc.cam.ac.uk/browse/BLD-5684
+            subprocess.run(f'sudo mkdir -p {python_version_destdir()}', shell=True)
+            subprocess.run(f'sudo chown $(id -u) {python_version_destdir()}; echo "chown $(id -u) {python_version_destdir()}"', shell=True)
+            SqlitePackage().build()
         if ubuntu():
             subprocess.run('sudo apt-get -y update', shell=True, check=True)
             subprocess.run('sudo apt-get -y dist-upgrade', shell=True, check=True)
@@ -188,8 +192,8 @@ def install_pyenv_version(version):
         return
     if linux():
         if rocky():
-            python_build_env['LDFLAGS'] = f"{python_build_env.get('LDFLAGS', '')} -L/usr/lib64/openssl3 -L/usr/lib64 -lssl -lcrypto"
-            python_build_env['CPPFLAGS'] = f"{python_build_env.get('CPPFLAGS', '')} -I/usr/include/openssl3"
+            python_build_env['LDFLAGS'] = f"{python_build_env.get('LDFLAGS', '')} -L{python_version_destdir()}/lib -L/usr/lib64/openssl -L/usr/lib64 -lssl -lcrypto -lz -lm -ldl -lpthread"
+            python_build_env['CPPFLAGS'] = f"{python_build_env.get('CPPFLAGS', '')} -I{python_version_destdir()}/include -I/usr/include/openssl"
         python_build_env['PATH']=f"/tmp/pyenvinst/plugins/python-build/bin:{python_build_env['PATH']}"
     subprocess.run(f'sudo env "PATH=$PATH" python-build {version} {python_version_destdir()}', shell=True, check=True, env=python_build_env)
 

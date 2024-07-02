@@ -11,6 +11,7 @@ on:  # yamllint disable-line rule:truthy
           - 'no-upload'
           - 'upload'
       platforms:
+        type: choice
         description: 'Platform to build for, eg. '
         options:
           - 'rocky8'
@@ -75,9 +76,11 @@ jobs:
 
       - name: Build base python
         run: |
-          output=$(${{ needs.setup.outputs.python }} build_python.py | tail -n 1)
-          archive_filename=$(echo $output | awk '{print $2}')
-          archive_path=$(echo $output | awk '{print $NF}')
+          ${{ needs.setup.outputs.python }} build_python.py > build_python.log 2>&1
+          cat build_python.log
+          output_lastline=$(cat build_python.log | grep Creating | tail -n 1)
+          archive_filename=$(echo $output_lastline | awk '{print $2}')
+          archive_path=$(echo $output_lastline | awk '{print $NF}')
           version=$(echo $archive_filename | awk -F"-" '{print $2}')
           shortversion=${version%.*}
           echo "archive_filename=$archive_filename" >> $GITHUB_ENV
@@ -85,11 +88,13 @@ jobs:
           echo "shortversion=$shortversion" >> $GITHUB_ENV
 
       - name: Set up JFrog CLI
+        if: ${{ inputs.deploy == 'upload' }}
         uses: jfrog/setup-jfrog-cli@v4
         env:
           JF_ENV_1: ${{ secrets.ARTIFACTORY_GH_CCDC_3RDPARTY_PYTHON_INTERPRETERS_READ_WRITE_EXPORT }}
 
       - name: Upload base python to Artifactory
+        if: ${{ inputs.deploy == 'upload' }}
         shell: bash
         run: |
           # Upload the base python to Artifactory
