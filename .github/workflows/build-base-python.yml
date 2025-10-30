@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set output
         id: set_output
@@ -61,7 +61,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -102,3 +102,27 @@ jobs:
           jfrog rt upload --flat \
             "${{ env.archive_path }}/${{ env.archive_filename }}" \
             "ccdc-3rdparty-python-interpreters/base_python/${{ env.shortversion }}/"
+
+      - name: upload base python to ProGet
+        if: ${{ inputs.deploy == 'upload' }}
+        shell: bash
+        env:
+          PROGET_API_KEY: ${{ secrets.PROGET_API_KEY }}
+          PROGET_BASE_URL: ${{ vars.PROGET_BASE_URL }}
+          PROGET_ASSET_DIRECTORY: ${{ vars.PROGET_ASSET_DIRECTORY }}
+        run: |
+          PROGET_ENDPOINT="${PROGET_BASE_URL}/endpoints/${PROGET_ASSET_DIRECTORY}/content/base_python/${{ env.shortversion }}/${{ env.archive_filename }}"
+
+          curl -X POST \
+            -H "Content-Type: application/octet-stream" \
+            -H "X-ApiKey: ${PROGET_API_KEY}" \
+            --data-binary "@${{ env.archive_path }}/${{ env.archive_filename }}" \
+            --fail-with-body \
+            "$PROGET_ENDPOINT"
+
+          if [ $? -eq 0 ]; then
+            echo "Successfully uploaded ${{ env.archive_filename }} to ProGet"
+          else
+            echo "Failed to upload ${{ env.archive_filename }} to ProGet"
+            exit 1
+          fi
